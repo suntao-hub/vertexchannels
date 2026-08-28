@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ContactLead {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  company     String   @default("")
+  service     String   @default("")
+  message     String
+  status      String   @default("new")
+  notes       String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
