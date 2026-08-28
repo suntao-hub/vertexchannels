@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import AdminShell from "./AdminShell";
 
 const navy   = "#0A2333";
 const orange = "#F97316";
@@ -153,25 +154,16 @@ function Dashboard({ sessionToken }: { sessionToken: string }) {
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F9FAFB", fontFamily: "system-ui, sans-serif" }}>
-      <header style={{ background: navy, padding: "0 28px", height: 56,
-        display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <a href="/" style={{ display: "flex", gap: 2 }}>
-            <span style={{ fontSize: 16, fontWeight: 800, color: "#fff" }}>Vertex</span>
-            <span style={{ fontSize: 16, fontWeight: 800, color: orange }}>Channels</span>
-          </a>
-          <span style={{ color: "#475569", fontSize: 13, marginLeft: 8 }}>/</span>
-          <span style={{ color: "#fff", fontSize: 13, fontWeight: 700, marginLeft: 6 }}>Leads</span>
-          <a href="/admin/deals" style={{ color: "#94A3B8", fontSize: 13, marginLeft: 10 }}>Deal Desk</a>
-        </div>
+    <AdminShell
+      title="Leads"
+      actions={
         <button onClick={fetchLeads}
-          style={{ background: "none", border: "1px solid #334155", color: "#94A3B8",
+          style={{ background: "#fff", border: `1px solid ${border}`, color: muted,
             padding: "5px 14px", fontSize: 13, borderRadius: 6, cursor: "pointer" }}>
           Refresh
         </button>
-      </header>
-
+      }
+    >
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "28px 24px" }}>
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(120px,1fr))",
@@ -338,7 +330,7 @@ function Dashboard({ sessionToken }: { sessionToken: string }) {
           )}
         </div>
       </div>
-    </div>
+    </AdminShell>
   );
 }
 

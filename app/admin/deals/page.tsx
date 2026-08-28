@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
+import AdminShell from "../AdminShell";
 
 const navy = "#0A2333";
 const orange = "#F97316";
@@ -627,27 +628,19 @@ export default function DealDeskPage() {
   const bestScore = (p: Prospect) => p.products.reduce((m, x) => Math.max(m, x.score ?? -1), -1);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F9FAFB", fontFamily: "system-ui, sans-serif" }}>
-      <header style={{ background: navy, padding: "0 28px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <a href="/" style={{ display: "flex", gap: 2 }}>
-            <span style={{ fontSize: 16, fontWeight: 800, color: "#fff" }}>Vertex</span>
-            <span style={{ fontSize: 16, fontWeight: 800, color: orange }}>Channels</span>
-          </a>
-          <span style={{ color: "#475569", fontSize: 13 }}>/</span>
-          <a href="/admin" style={{ color: "#94A3B8", fontSize: 13 }}>Leads</a>
-          <span style={{ color: "#fff", fontSize: 13, fontWeight: 700 }}>Deal Desk</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontSize: 11, color: keepaOn ? "#4ADE80" : "#F59E0B" }}>
+    <AdminShell
+      title="Deal Desk"
+      actions={
+        <>
+          <span style={{ fontSize: 11, fontWeight: 600, color: keepaOn ? "#15803D" : "#B45309" }}>
             Keepa {keepaOn ? "connected" : "not configured"}
           </span>
-          <button onClick={load} style={{ background: "none", border: "1px solid #334155", color: "#94A3B8", padding: "5px 14px", fontSize: 13, borderRadius: 6, cursor: "pointer" }}>
+          <button onClick={load} style={{ background: "#fff", border: `1px solid ${border}`, color: muted, padding: "5px 14px", fontSize: 13, borderRadius: 6, cursor: "pointer" }}>
             Refresh
           </button>
-        </div>
-      </header>
-
+        </>
+      }
+    >
       <div style={{ maxWidth: 1240, margin: "0 auto", padding: "24px" }}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 18 }}>
           {["all", ...STAGES].map((s) => (
@@ -730,7 +723,7 @@ export default function DealDeskPage() {
           )}
         </div>
       </div>
-    </div>
+    </AdminShell>
   );
 }
 
