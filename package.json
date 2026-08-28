@@ -7,12 +7,11 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma skills sync || exit 0"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^7.10.0",
     "next": "16.3.3",
-    "prisma": "^8.0.0-rc.12",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "resend": "^6.24.0"
@@ -23,6 +22,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.3",
+    "prisma": "^7.10.0",
     "typescript": "^5"
   }
 }
