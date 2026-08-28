@@ -161,7 +161,9 @@ function Dashboard({ sessionToken }: { sessionToken: string }) {
             <span style={{ fontSize: 16, fontWeight: 800, color: "#fff" }}>Vertex</span>
             <span style={{ fontSize: 16, fontWeight: 800, color: orange }}>Channels</span>
           </a>
-          <span style={{ color: "#475569", fontSize: 13, marginLeft: 8 }}>/ Leads</span>
+          <span style={{ color: "#475569", fontSize: 13, marginLeft: 8 }}>/</span>
+          <span style={{ color: "#fff", fontSize: 13, fontWeight: 700, marginLeft: 6 }}>Leads</span>
+          <a href="/admin/deals" style={{ color: "#94A3B8", fontSize: 13, marginLeft: 10 }}>Deal Desk</a>
         </div>
         <button onClick={fetchLeads}
           style={{ background: "none", border: "1px solid #334155", color: "#94A3B8",
