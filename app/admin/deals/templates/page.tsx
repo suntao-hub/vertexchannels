@@ -9,7 +9,7 @@ const muted = "#6B7280";
 const green = "#15803D";
 
 interface Template {
-  id: string; key: string; name: string; subject: string; body: string;
+  id: string; key: string; context: string; name: string; subject: string; body: string;
   step: number; waitDays: number; active: boolean;
 }
 
@@ -28,7 +28,11 @@ function useToken() {
   return t;
 }
 
-const MERGE_FIELDS = ["{{brand}}", "{{contact}}", "{{category}}", "{{website}}", "{{yourName}}", "{{company}}", "{{title}}", "{{site}}"];
+const MERGE_FIELDS = [
+  "{{brand}}", "{{contact}}", "{{category}}", "{{website}}",
+  "{{name}}", "{{firstName}}", "{{leadCompany}}", "{{service}}",
+  "{{yourName}}", "{{company}}", "{{title}}", "{{site}}",
+];
 
 export default function TemplatesPage() {
   const token = useToken();
@@ -62,8 +66,15 @@ export default function TemplatesPage() {
   if (token === undefined || (loading && token)) return <Centered>Loading…</Centered>;
   if (token === null) return <Centered><a href="/admin" style={{ color: orange, fontWeight: 700 }}>Sign in to continue →</a></Centered>;
 
-  const seq = templates.filter((t) => t.step > 0).sort((a, b) => a.step - b.step);
-  const situ = templates.filter((t) => t.step === 0);
+  const row = (t: Template) => (
+    <Row key={t.id} t={t} open={openId === t.id} onToggle={() => setOpenId(openId === t.id ? null : t.id)} onSave={save} />
+  );
+  const group = (context: string) => {
+    const inCtx = templates.filter((t) => t.context === context);
+    return { seq: inCtx.filter((t) => t.step > 0).sort((a, b) => a.step - b.step), situ: inCtx.filter((t) => t.step === 0) };
+  };
+  const prospect = group("prospect");
+  const lead = group("lead");
 
   return (
     <AdminShell
@@ -79,19 +90,31 @@ export default function TemplatesPage() {
             ))}
           </p>
           <p style={{ fontSize: 11, color: muted, margin: "6px 0 0" }}>
-            {"{{brand}} {{contact}} {{category}} {{website}}"} come from the prospect. The rest are set via env vars (OUTREACH_SENDER_NAME, OUTREACH_COMPANY, …).
+            Prospect: <code style={codeInline}>{"{{brand}} {{contact}} {{category}} {{website}}"}</code>. &nbsp;
+            Lead: <code style={codeInline}>{"{{name}} {{firstName}} {{leadCompany}} {{service}}"}</code>. &nbsp;
+            The rest come from env vars (OUTREACH_SENDER_NAME, OUTREACH_COMPANY, …).
           </p>
         </div>
 
-        <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", color: muted, margin: "0 0 8px" }}>Sequence</p>
-        {seq.map((t) => <Row key={t.id} t={t} open={openId === t.id} onToggle={() => setOpenId(openId === t.id ? null : t.id)} onSave={save} />)}
+        <h2 style={h2}>Prospect outreach <span style={{ color: muted, fontWeight: 400, fontSize: 12 }}>— cold, to brands</span></h2>
+        <p style={subhead}>Sequence</p>
+        {prospect.seq.map(row)}
+        <p style={subhead}>Situational replies</p>
+        {prospect.situ.map(row)}
 
-        <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", color: muted, margin: "20px 0 8px" }}>Situational replies</p>
-        {situ.map((t) => <Row key={t.id} t={t} open={openId === t.id} onToggle={() => setOpenId(openId === t.id ? null : t.id)} onSave={save} />)}
+        <h2 style={{ ...h2, marginTop: 32 }}>Lead replies <span style={{ color: muted, fontWeight: 400, fontSize: 12 }}>— warm, to inbound inquiries</span></h2>
+        <p style={subhead}>Sequence</p>
+        {lead.seq.map(row)}
+        <p style={subhead}>One-off</p>
+        {lead.situ.map(row)}
       </div>
     </AdminShell>
   );
 }
+
+const h2: React.CSSProperties = { fontSize: 15, fontWeight: 800, color: navy, margin: "0 0 10px" };
+const subhead: React.CSSProperties = { fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", color: muted, margin: "14px 0 8px" };
+const codeInline: React.CSSProperties = { background: "#fff", border: `1px solid ${border}`, borderRadius: 4, padding: "1px 5px", fontSize: 11 };
 
 function Row({ t, open, onToggle, onSave }: {
   t: Template; open: boolean; onToggle: () => void;

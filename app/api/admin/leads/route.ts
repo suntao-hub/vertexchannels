@@ -12,6 +12,9 @@ function checkAuth(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   if (!checkAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const leads = await db.contactLead.findMany({ orderBy: { createdAt: "desc" } });
+  const leads = await db.contactLead.findMany({
+    orderBy: { createdAt: "desc" },
+    include: { emails: { orderBy: { createdAt: "asc" } } },
+  });
   return NextResponse.json(leads);
 }

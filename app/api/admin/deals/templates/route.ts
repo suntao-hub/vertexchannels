@@ -3,16 +3,28 @@ import { db } from "@/lib/db/client";
 import { checkAuth } from "@/lib/admin/auth";
 import { DEFAULT_TEMPLATES } from "@/lib/deals/templates";
 
-async function seedIfEmpty() {
-  const count = await db.emailTemplate.count();
-  if (count > 0) return;
-  await db.emailTemplate.createMany({ data: DEFAULT_TEMPLATES });
+// Seed any context that has no templates yet (so adding the "lead" set later
+// doesn't require a manual migration).
+async function seedMissing() {
+  const contexts = [...new Set(DEFAULT_TEMPLATES.map((t) => t.context))];
+  for (const ctx of contexts) {
+    const count = await db.emailTemplate.count({ where: { context: ctx } });
+    if (count === 0) {
+      await db.emailTemplate.createMany({
+        data: DEFAULT_TEMPLATES.filter((t) => t.context === ctx),
+      });
+    }
+  }
 }
 
 export async function GET(req: NextRequest) {
   if (!checkAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  await seedIfEmpty();
-  const templates = await db.emailTemplate.findMany({ orderBy: [{ step: "asc" }, { name: "asc" }] });
+  await seedMissing();
+  const context = req.nextUrl.searchParams.get("context") ?? undefined;
+  const templates = await db.emailTemplate.findMany({
+    where: context ? { context } : undefined,
+    orderBy: [{ context: "asc" }, { step: "asc" }, { name: "asc" }],
+  });
   return NextResponse.json(templates);
 }
 
@@ -26,6 +38,7 @@ export async function POST(req: NextRequest) {
   const template = await db.emailTemplate.create({
     data: {
       key,
+      context: b.context === "lead" ? "lead" : "prospect",
       name: b.name.trim(),
       subject: b.subject.trim(),
       body: b.body,

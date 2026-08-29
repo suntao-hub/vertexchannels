@@ -26,12 +26,19 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ? await db.outreachEmail.update({ where: { id }, data })
       : await db.outreachEmail.findUniqueOrThrow({ where: { id } });
 
-    // If the brand replied, reflect it on the prospect stage.
+    // A reply nudges the owner forward.
     if (b.outcome === "replied" || b.outcome === "interested") {
       const e = await db.outreachEmail.findUniqueOrThrow({ where: { id } });
-      const p = await db.brandProspect.findUniqueOrThrow({ where: { id: e.prospectId } });
-      if (p.stage === "contacted") {
-        await db.brandProspect.update({ where: { id: p.id }, data: { stage: "replied" } });
+      if (e.prospectId) {
+        const p = await db.brandProspect.findUniqueOrThrow({ where: { id: e.prospectId } });
+        if (p.stage === "contacted") {
+          await db.brandProspect.update({ where: { id: p.id }, data: { stage: "replied" } });
+        }
+      } else if (e.leadId) {
+        const l = await db.contactLead.findUniqueOrThrow({ where: { id: e.leadId } });
+        if (l.status === "contacted" || l.status === "new") {
+          await db.contactLead.update({ where: { id: l.id }, data: { status: "qualified" } });
+        }
       }
     }
     return NextResponse.json(email);

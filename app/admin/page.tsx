@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import AdminShell from "./AdminShell";
+import { OutreachSection, type OutreachEmail, type EmailTemplate } from "./OutreachSection";
 
 const navy   = "#0A2333";
 const orange = "#F97316";
@@ -11,6 +12,7 @@ const muted  = "#6B7280";
 type Lead = {
   id: string; name: string; email: string; company: string;
   service: string; message: string; status: string; notes: string; createdAt: string;
+  emails?: OutreachEmail[];
 };
 
 const STATUS_OPTIONS = ["new", "contacted", "qualified", "proposal", "closed-won", "closed-lost"];
@@ -105,6 +107,7 @@ function LoginScreen() {
 
 function Dashboard({ sessionToken }: { sessionToken: string }) {
   const [leads, setLeads]     = useState<Lead[]>([]);
+  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter]   = useState("all");
   const [selected, setSelected] = useState<Lead | null>(null);
@@ -115,8 +118,14 @@ function Dashboard({ sessionToken }: { sessionToken: string }) {
 
   const fetchLeads = useCallback(async () => {
     setLoading(true);
-    const r = await fetch("/api/admin/leads", { headers });
-    setLeads(await r.json());
+    const [lr, tr] = await Promise.all([
+      fetch("/api/admin/leads", { headers }),
+      fetch("/api/admin/deals/templates?context=lead", { headers }),
+    ]);
+    const next: Lead[] = await lr.json();
+    setLeads(next);
+    try { setTemplates(await tr.json()); } catch { /* */ }
+    setSelected((s) => s ? next.find((l) => l.id === s.id) ?? null : null);
     setLoading(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionToken]);
@@ -326,6 +335,18 @@ function Dashboard({ sessionToken }: { sessionToken: string }) {
                   Email
                 </a>
               </div>
+
+              <OutreachSection
+                ownerKind="lead" ownerId={selected.id} contactEmail={selected.email}
+                emails={selected.emails ?? []}
+                templates={templates}
+                token={sessionToken}
+                onEmailsChange={(emails) => {
+                  setSelected(s => s ? { ...s, emails } : s);
+                  setLeads(ls => ls.map(l => l.id === selected.id ? { ...l, emails } : l));
+                }}
+                onOwnerRefetch={fetchLeads}
+              />
             </div>
           )}
         </div>

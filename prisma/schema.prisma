@@ -16,6 +16,8 @@ model ContactLead {
   message     String
   status      String   @default("new")
   notes       String   @default("")
+  firstEmailAt DateTime?
+  emails      OutreachEmail[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -55,6 +57,7 @@ model BrandProspect {
 model EmailTemplate {
   id        String   @id @default(cuid())
   key       String   @unique
+  context   String   @default("prospect") // prospect (cold outbound) | lead (warm inbound)
   name      String
   subject   String
   body      String
@@ -67,8 +70,10 @@ model EmailTemplate {
 
 model OutreachEmail {
   id           String   @id @default(cuid())
-  prospectId   String
-  prospect     BrandProspect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  prospectId   String?
+  prospect     BrandProspect? @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  leadId       String?
+  lead         ContactLead?   @relation(fields: [leadId], references: [id], onDelete: Cascade)
   templateKey  String   @default("")
   step         Int      @default(0)
   toEmail      String   @default("")
@@ -81,6 +86,7 @@ model OutreachEmail {
   updatedAt    DateTime @updatedAt
 
   @@index([prospectId])
+  @@index([leadId])
 }
 
 model ProspectProduct {
