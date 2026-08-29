@@ -27,7 +27,7 @@ const SERVICES = [
   {
     d: ["M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 004 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"],
     title: "Multi-Channel Selling",
-    body: "We become your authorized reseller and take your catalog live on Walmart, eBay, Newegg, and Woot — listings, pricing, ads, and fulfillment. You approve the channels; we run them.",
+    body: "We become your authorized reseller and take your catalog live on Walmart, eBay, Newegg, and other marketplaces — listings, pricing, ads, and fulfillment. You approve the channels; we run them.",
   },
   {
     d: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
