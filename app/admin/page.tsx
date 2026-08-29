@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import AdminShell from "./AdminShell";
 import { OutreachSection, type OutreachEmail, type EmailTemplate } from "./OutreachSection";
+import { readSession, storeSession } from "@/lib/admin/session";
 
 const navy   = "#0A2333";
 const orange = "#F97316";
@@ -368,34 +369,23 @@ function AdminInner() {
     const urlToken = params.get("token");
     const urlTs    = params.get("ts");
 
-    // If token + ts in URL, validate and store session
+    // If token + ts in URL, check the magic-link is fresh, then store the session
     if (urlToken && urlTs) {
       const ts = parseInt(urlTs, 10);
-      const SESSION_TTL = 12 * 60 * 60 * 1000; // 12h session
-      if (Date.now() - ts > 15 * 60 * 1000) {
+      if (isNaN(ts) || Date.now() - ts > 15 * 60 * 1000) {
         setInvalid(true); setVerifying(false); return;
       }
       const stored = `${urlTs}:${urlToken}`;
-      try { sessionStorage.setItem("vc_admin_session", stored); } catch { /* */ }
-      // Clean URL
-      router.replace("/admin");
+      storeSession(stored);
+      router.replace("/admin"); // clean the URL
       setSessionToken(stored);
       setVerifying(false);
       return;
     }
 
-    // Otherwise check sessionStorage
-    try {
-      const stored = sessionStorage.getItem("vc_admin_session");
-      if (stored) {
-        const [tsStr] = stored.split(":");
-        const ts = parseInt(tsStr, 10);
-        const SESSION_TTL = 12 * 60 * 60 * 1000;
-        if (!isNaN(ts) && Date.now() - ts <= SESSION_TTL) {
-          setSessionToken(stored);
-        }
-      }
-    } catch { /* */ }
+    // Otherwise resume a stored session
+    const stored = readSession();
+    if (stored) setSessionToken(stored);
     setVerifying(false);
   }, [params, router]);
 

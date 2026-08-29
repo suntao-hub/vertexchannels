@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import AdminShell from "../../AdminShell";
+import { readSession } from "@/lib/admin/session";
 
 const navy = "#0A2333";
 const orange = "#F97316";
@@ -15,16 +16,7 @@ interface Template {
 
 function useToken() {
   const [t, setT] = useState<string | null | undefined>(undefined);
-  useEffect(() => {
-    try {
-      const s = sessionStorage.getItem("vc_admin_session");
-      if (s) {
-        const ts = parseInt(s.split(":")[0], 10);
-        if (!isNaN(ts) && Date.now() - ts <= 12 * 60 * 60 * 1000) { setT(s); return; }
-      }
-    } catch { /* */ }
-    setT(null);
-  }, []);
+  useEffect(() => { setT(readSession()); }, []);
   return t;
 }
 

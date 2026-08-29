@@ -4,16 +4,19 @@ import { Resend } from "resend";
 
 const ADMIN_EMAIL  = process.env.ADMIN_EMAIL  ?? "";
 const ADMIN_SECRET = process.env.ADMIN_SECRET ?? "";
-const LINK_TTL_MS  = 15 * 60 * 1000; // 15 minutes
+export const LINK_TTL_MS    = 15 * 60 * 1000;             // magic link freshness
+export const SESSION_TTL_MS  = 7 * 24 * 60 * 60 * 1000;   // signed-in session length
 
 export function signToken(email: string, ts: number) {
   return createHmac("sha256", ADMIN_SECRET).update(`${email}:${ts}`).digest("hex");
 }
 
-export function verifyToken(email: string, ts: number, token: string): boolean {
+// maxAgeMs defaults to the session window — API auth. Pass LINK_TTL_MS to
+// gate the initial magic-link click.
+export function verifyToken(email: string, ts: number, token: string, maxAgeMs: number = SESSION_TTL_MS): boolean {
   if (!ADMIN_SECRET || !ADMIN_EMAIL) return false;
   if (email !== ADMIN_EMAIL) return false;
-  if (Date.now() - ts > LINK_TTL_MS) return false;
+  if (!Number.isFinite(ts) || Date.now() - ts > maxAgeMs) return false;
   const expected = signToken(email, ts);
   // constant-time compare
   if (expected.length !== token.length) return false;

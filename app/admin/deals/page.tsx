@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import AdminShell from "../AdminShell";
 import { OutreachSection, type OutreachEmail, type EmailTemplate } from "../OutreachSection";
 import { parseCsv, autoMap, SMARTSCOUT_HINTS } from "@/lib/deals/csv";
+import { readSession } from "@/lib/admin/session";
 
 const navy = "#0A2333";
 const orange = "#F97316";
@@ -102,19 +103,7 @@ const BAND_STYLE: Record<string, { bg: string; fg: string; label: string }> = {
 
 function useAdminToken() {
   const [token, setToken] = useState<string | null | undefined>(undefined);
-  useEffect(() => {
-    try {
-      const stored = sessionStorage.getItem("vc_admin_session");
-      if (stored) {
-        const ts = parseInt(stored.split(":")[0], 10);
-        if (!isNaN(ts) && Date.now() - ts <= 12 * 60 * 60 * 1000) {
-          setToken(stored);
-          return;
-        }
-      }
-    } catch { /* */ }
-    setToken(null);
-  }, []);
+  useEffect(() => { setToken(readSession()); }, []);
   return token;
 }
 
