@@ -6,7 +6,10 @@ export async function GET(req: NextRequest) {
   if (!checkAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const prospects = await db.brandProspect.findMany({
     orderBy: { updatedAt: "desc" },
-    include: { products: { orderBy: { createdAt: "asc" } } },
+    include: {
+      products: { orderBy: { createdAt: "asc" } },
+      emails: { orderBy: { createdAt: "asc" } },
+    },
   });
   return NextResponse.json(prospects);
 }

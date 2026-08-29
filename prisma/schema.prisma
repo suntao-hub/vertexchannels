@@ -43,8 +43,44 @@ model BrandProspect {
   firstEmailAt  DateTime?
   secondEmailAt DateTime?
   products      ProspectProduct[]
+  emails        OutreachEmail[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+// Outreach sequence — TWF-style reverse-sourcing cadence (initial contact →
+// follow-ups → situational replies), with the Vertex Channels value prop
+// (multi-channel placement + excess-inventory recovery) woven into the copy.
+
+model EmailTemplate {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  name      String
+  subject   String
+  body      String
+  step      Int      @default(0) // 1..n = position in the auto-sequence; 0 = situational, sent on demand
+  waitDays  Int      @default(0) // days after the previous step before this one is "due"
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OutreachEmail {
+  id           String   @id @default(cuid())
+  prospectId   String
+  prospect     BrandProspect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  templateKey  String   @default("")
+  step         Int      @default(0)
+  toEmail      String   @default("")
+  subject      String
+  body         String
+  status       String   @default("draft") // draft | sent | logged | skipped
+  sentAt       DateTime?
+  outcome      String   @default("")       // "" | replied | interested | denied | no_sellers | bounced
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([prospectId])
 }
 
 model ProspectProduct {
