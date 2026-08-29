@@ -25,61 +25,61 @@ function Icon({ d, size = 24, color = orange }: { d: string | string[]; size?: n
 
 const SERVICES = [
   {
-    d: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
-    title: "Amazon PPC Management",
-    body: "We build and manage Sponsored Products, Brands, and Display campaigns that protect your ranking and profitably grow sales — not just spend.",
-  },
-  {
-    d: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
-    title: "Listing & Content Optimization",
-    body: "Titles, bullets, A+ content, and backend keywords written to convert. We audit what's hurting you and fix it.",
-  },
-  {
-    d: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
-    title: "Brand Protection",
-    body: "Unauthorized sellers, MAP violators, and IP threats. We monitor, document, and act — so your brand doesn't get undercut on its own listing.",
-  },
-  {
-    d: "M13 10V3L4 14h7v7l9-11h-7z",
-    title: "Product Launch Strategy",
-    body: "From keyword research to review velocity to launch PPC — we run launches that build organic rank, not just paid velocity that disappears.",
-  },
-  {
     d: ["M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 004 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"],
-    title: "Multi-Channel Expansion",
-    body: "Once Amazon is dialed in, we grow you to Walmart, Wayfair, DTC, and off-price retail. Same products, more channels, more revenue.",
+    title: "Multi-Channel Selling",
+    body: "We become your authorized reseller and take your catalog live on Walmart, eBay, Newegg, and Woot — listings, pricing, ads, and fulfillment. You approve the channels; we run them.",
   },
   {
     d: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
-    title: "Excess Inventory Brokerage",
-    body: "Overproduction, returns, or discontinued stock? We connect you to the right liquidation channel — Woot, B-Stock, or off-price retail — and negotiate on your behalf.",
+    title: "Excess Inventory Recovery",
+    body: "Overproduction, returns, discontinued lines? We buy the lot at a fair price and sell it through across our channels — you get cash now instead of paying to store it.",
+  },
+  {
+    d: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+    title: "Wholesale Partnership",
+    body: "One account, one PO, one point of contact. We handle the retail side across every marketplace so your team isn't managing a dozen seller portals.",
+  },
+  {
+    d: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
+    title: "Brand Protection & MAP",
+    body: "Unauthorized sellers and MAP violators fragment your pricing and your brand. As your authorized channel partner, we consolidate control and enforce your policy.",
+  },
+  {
+    d: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+    title: "Listing & Content",
+    body: "Every channel renders your product differently. We build listings — titles, images, A+, attributes — that convert on each one, not a copy-paste from your Amazon page.",
+  },
+  {
+    d: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
+    title: "Amazon Advisory",
+    body: "Already selling on Amazon? We audit PPC, listings, and rank strategy and give you a straight read on what's costing you — no account access required.",
   },
 ];
 
 const PROBLEMS = [
-  { d: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z", text: "Ad spend with no clear ROI" },
-  { d: "M13 17h8m0 0V9m0 8l-8-8-4 4-6-6", text: "Ranking that drops and never recovers" },
-  { d: "M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636", text: "Unauthorized sellers on your listings" },
-  { d: "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4", text: "Excess inventory costing storage fees" },
-  { d: "M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9", text: "Sales stuck on a single channel" },
-  { d: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z", text: "No time to manage any of it" },
+  { d: "M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9", text: "Revenue concentrated on one channel" },
+  { d: "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4", text: "Excess or aged inventory bleeding storage fees" },
+  { d: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z", text: "Walmart, eBay, Newegg set up badly — or not at all" },
+  { d: "M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636", text: "Unauthorized sellers undercutting you everywhere" },
+  { d: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4", text: "Every channel with its own rules, fees, and portal" },
+  { d: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z", text: "No bandwidth to run more than one of them well" },
 ];
 
 const HOW = [
   {
     step: "01",
-    title: "Amazon first",
-    body: "Amazon is the hardest channel to get right. We start there — auditing your presence, fixing the fundamentals, and building a profitable base before expanding anywhere else.",
+    title: "We map the gaps",
+    body: "We look at where your products sell today and where demand is going unserved — usually Walmart, eBay, and Newegg — and size the opportunity honestly.",
   },
   {
     step: "02",
-    title: "Then we expand",
-    body: "With a strong Amazon foundation, we open new channels systematically — Walmart, DTC, wholesale, off-price — each one adding revenue without cannibalising the others.",
+    title: "We open the account",
+    body: "We set up as your authorized reseller, build the listings for each marketplace, wire in fulfillment, and launch the channels you've approved.",
   },
   {
     step: "03",
-    title: "We handle the complexity",
-    body: "Channel management, compliance, pricing, inventory flow — we own the operational work so you can focus on your product and your customers.",
+    title: "We run the operation",
+    body: "Pricing, ads, inventory flow, compliance, customer issues — we own the day-to-day. You get one report and one point of contact.",
   },
 ];
 
@@ -266,17 +266,18 @@ export default function Home() {
           <span style={{ display: "inline-block", background: orange, color: "#fff",
             fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase",
             padding: "4px 14px", borderRadius: 20, marginBottom: 28 }}>
-            Multi-Channel Brand Management
+            Wholesale &amp; Multi-Channel Partner
           </span>
           <h1 style={{ fontSize: "clamp(32px, 5.5vw, 56px)", fontWeight: 800, color: "#fff",
             lineHeight: 1.15, margin: "0 0 24px" }}>
-            Amazon is where we start.<br />
-            <span style={{ color: orange }}>Every channel</span> is where we take you.
+            Amazon is one channel.<br />
+            <span style={{ color: orange }}>We run the rest.</span>
           </h1>
           <p style={{ fontSize: "clamp(16px, 2vw, 20px)", color: "#CBD5E1",
-            lineHeight: 1.7, margin: "0 0 40px", maxWidth: 620, marginLeft: "auto", marginRight: "auto" }}>
-            We take the complexity out of selling online — managing your Amazon presence,
-            protecting your brand, and expanding to every channel your customers shop on.
+            lineHeight: 1.7, margin: "0 0 40px", maxWidth: 640, marginLeft: "auto", marginRight: "auto" }}>
+            Vertex Channels is your wholesale and multi-channel partner — putting your catalog
+            on Walmart, eBay, and Newegg, and clearing excess inventory across all of them.
+            You keep control of your brand; we own the operational grind.
           </p>
           <div className="hero-buttons" style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
             <button onClick={scrollToContact}
@@ -299,12 +300,13 @@ export default function Home() {
         <div style={{ maxWidth: 860, margin: "0 auto", textAlign: "center" }}>
           <h2 style={{ fontSize: "clamp(22px, 3.5vw, 34px)", fontWeight: 700,
             margin: "0 0 20px", lineHeight: 1.3 }}>
-            Selling online keeps getting harder.<br />Most brands are leaving money on the table.
+            Your best channel is working.<br />Every other one is leaking revenue.
           </h2>
           <p style={{ fontSize: 17, color: muted, lineHeight: 1.7, maxWidth: 600,
             margin: "0 auto 48px" }}>
-            Suppressed listings, runaway ad spend, MAP violators undercutting your price,
-            excess inventory piling up — these problems compound fast and are costly to ignore.
+            Most brands pour everything into Amazon and let Walmart, eBay, and Newegg sit idle —
+            while excess inventory racks up storage fees and unauthorized sellers fragment the price.
+            These gaps compound fast.
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))",
             gap: 16, textAlign: "left" }}>
@@ -329,8 +331,8 @@ export default function Home() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start",
             marginBottom: 48, flexWrap: "wrap", gap: 16 }}>
             <h2 style={{ fontSize: "clamp(24px, 3.5vw, 36px)", fontWeight: 800,
-              margin: 0, lineHeight: 1.25, maxWidth: 420 }}>
-              Full-service brand management, start to finish
+              margin: 0, lineHeight: 1.25, maxWidth: 440 }}>
+              One partner for every channel Amazon isn&apos;t
             </h2>
             <button onClick={scrollToContact}
               style={{ background: "none", border: `1px solid ${orange}`, color: orange,
@@ -361,8 +363,8 @@ export default function Home() {
           <p style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase",
             letterSpacing: "0.1em", color: orange, margin: "0 0 10px" }}>HOW IT WORKS</p>
           <h2 style={{ fontSize: "clamp(24px, 3.5vw, 36px)", fontWeight: 800, color: "#fff",
-            margin: "0 0 56px", lineHeight: 1.2, maxWidth: 500 }}>
-            Amazon first. Then every channel that matters.
+            margin: "0 0 56px", lineHeight: 1.2, maxWidth: 520 }}>
+            You approve the channels. We do everything after that.
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 40 }}>
             {HOW.map(h => (
@@ -394,32 +396,31 @@ export default function Home() {
                 We&apos;ve been on both sides of the table
               </h2>
               <p style={{ fontSize: 16, color: muted, lineHeight: 1.75, margin: "0 0 20px" }}>
-                We&apos;ve run Amazon operations in-house at scale — managing ad spend,
-                fighting suppressed listings, dealing with unauthorized sellers, and moving
-                excess inventory under real business pressure.
+                We&apos;ve run multi-channel operations in-house — managing marketplace accounts,
+                fighting unauthorized sellers, and moving excess inventory under real P&amp;L pressure.
               </p>
               <p style={{ fontSize: 16, color: muted, lineHeight: 1.75 }}>
-                We know what actually moves the needle, what&apos;s a distraction, and when to
-                push back on a channel that isn&apos;t worth your margin. That experience is
-                what you get when you work with us.
+                We know what actually moves the needle, what&apos;s a distraction, and when a
+                channel isn&apos;t worth your margin. That&apos;s the judgment you get working with us —
+                not a vendor running reports.
               </p>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {[
                 {
                   d: "M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z",
-                  title: "No fluff, no retainer for retainer's sake",
-                  body: "We work on what actually drives revenue. If something isn't working, we tell you.",
+                  title: "Rev-share, not retainer for retainer's sake",
+                  body: "We mostly work on a share of the revenue we add. If a channel isn't earning its margin, we say so.",
                 },
                 {
                   d: "M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18",
                   title: "Operator mindset, not agency mindset",
-                  body: "We think like brand owners. Margin matters. Ranking matters. Channel conflict matters.",
+                  body: "We think like brand owners. Margin matters. Channel conflict matters. Cash tied up in stock matters.",
                 },
                 {
                   d: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15",
-                  title: "Full lifecycle coverage",
-                  body: "Launch, grow, protect, and recover — including moving inventory that isn't selling.",
+                  title: "We'll take the inventory, not just advise on it",
+                  body: "When it makes sense, we buy the lot and carry the risk — so stuck stock becomes cash instead of a line item.",
                 },
               ].map(d => (
                 <div key={d.title} style={{ background: "#fff", border: `1px solid ${border}`,
@@ -449,13 +450,14 @@ export default function Home() {
             Built for brands who are serious about winning online
           </h2>
           <p style={{ fontSize: 16, color: muted, lineHeight: 1.8, margin: "0 0 16px" }}>
-            Vertex Channels is a multi-channel brand management firm. We work with
-            e-commerce brands, wholesalers, and product companies who want a real operator
-            in their corner — not a vendor running reports.
+            Vertex Channels is a wholesale and multi-channel partner for e-commerce brands,
+            manufacturers, and product companies who want a real operator in their corner —
+            not a vendor running reports.
           </p>
           <p style={{ fontSize: 16, color: muted, lineHeight: 1.8, margin: "0 0 36px" }}>
-            We start with Amazon because it&apos;s where the bar is highest and the stakes are real.
-            Once that foundation is right, every other channel becomes easier to win.
+            Most brands pour everything into Amazon and let every other channel sit idle.
+            We&apos;re the team that runs the rest — as your authorized partner, on a share of
+            the revenue we add.
           </p>
           <button onClick={scrollToContact}
             style={{ background: orange, color: "#fff", border: "none", padding: "14px 36px",
@@ -473,8 +475,8 @@ export default function Home() {
             Ready to take control of your channels?
           </h2>
           <p style={{ fontSize: 16, color: "#94A3B8", margin: "0 0 32px", lineHeight: 1.6 }}>
-            Tell us about your brand. We&apos;ll review your current presence and come back with
-            an honest read of where you stand and where the real opportunity is.
+            Tell us about your brand. We&apos;ll review where you sell today and come back with
+            an honest read of which channels are worth opening and what the excess inventory is really costing you.
           </p>
           <button onClick={scrollToContact}
             style={{ background: orange, color: "#fff", border: "none", padding: "14px 36px",
