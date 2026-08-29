@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import AdminShell from "../AdminShell";
 import { OutreachSection, type OutreachEmail, type EmailTemplate } from "../OutreachSection";
+import { parseCsv, autoMap, SMARTSCOUT_HINTS } from "@/lib/deals/csv";
 
 const navy = "#0A2333";
 const orange = "#F97316";
@@ -598,11 +599,12 @@ export default function DealDeskPage() {
   const [stageFilter, setStageFilter] = useState("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [newBrand, setNewBrand] = useState("");
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (silent = false) => {
     if (!token) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     const [pr, lk, tp] = await Promise.all([
       fetch("/api/admin/deals", { headers: { "x-admin-token": token } }),
       fetch("/api/admin/deals/lookup", {
@@ -617,6 +619,8 @@ export default function DealDeskPage() {
     try { setTemplates(await tp.json()); } catch { /* */ }
     setLoading(false);
   }, [token]);
+
+  const reloadSilent = useCallback(() => load(true), [load]);
 
   useEffect(() => { if (token) load(); }, [token, load]);
 
@@ -654,7 +658,7 @@ export default function DealDeskPage() {
           <span style={{ fontSize: 11, fontWeight: 600, color: keepaOn ? "#15803D" : "#B45309" }}>
             Keepa {keepaOn ? "connected" : "not configured"}
           </span>
-          <button onClick={load} style={{ background: "#fff", border: `1px solid ${border}`, color: muted, padding: "5px 14px", fontSize: 13, borderRadius: 6, cursor: "pointer" }}>
+          <button onClick={() => load()} style={{ background: "#fff", border: `1px solid ${border}`, color: muted, padding: "5px 14px", fontSize: 13, borderRadius: 6, cursor: "pointer" }}>
             Refresh
           </button>
         </>
@@ -672,8 +676,12 @@ export default function DealDeskPage() {
               {s === "all" ? `All (${prospects.length})` : `${STAGE_LABEL[s]} (${prospects.filter((p) => p.stage === s).length})`}
             </button>
           ))}
-          <button onClick={() => setShowNew((v) => !v)}
-            style={{ marginLeft: "auto", background: orange, color: "#fff", border: "none", borderRadius: 8, padding: "7px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+          <button onClick={() => { setShowImport((v) => !v); setShowNew(false); }}
+            style={{ marginLeft: "auto", background: "#fff", color: navy, border: `1px solid ${border}`, borderRadius: 8, padding: "7px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+            Import CSV
+          </button>
+          <button onClick={() => { setShowNew((v) => !v); setShowImport(false); }}
+            style={{ background: orange, color: "#fff", border: "none", borderRadius: 8, padding: "7px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
             + New prospect
           </button>
         </div>
@@ -690,6 +698,10 @@ export default function DealDeskPage() {
               Create
             </button>
           </div>
+        )}
+
+        {showImport && (
+          <ImportPanel token={token} onImported={reloadSilent} onClose={() => setShowImport(false)} />
         )}
 
         <div style={{ display: "grid", gridTemplateColumns: selected ? "minmax(0,420px) 1fr" : "1fr", gap: 20, alignItems: "start" }}>
@@ -732,7 +744,7 @@ export default function DealDeskPage() {
             <ProspectDetail
               prospect={selected} templates={templates} token={token} keepaOn={keepaOn}
               onUpdate={(np) => setProspects((ps) => ps.map((x) => x.id === np.id ? np : x))}
-              onReload={load}
+              onReload={reloadSilent}
               onDelete={async () => {
                 if (!confirm(`Delete ${selected.brandName}?`)) return;
                 await fetch(`/api/admin/deals/${selected.id}`, { method: "DELETE", headers: { "x-admin-token": token } });
@@ -744,6 +756,177 @@ export default function DealDeskPage() {
         </div>
       </div>
     </AdminShell>
+  );
+}
+
+// ─── CSV import ──────────────────────────────────────────────────────────────
+
+const CORE_FIELDS: { key: string; label: string; required?: boolean }[] = [
+  { key: "brandName", label: "Brand name", required: true },
+  { key: "website", label: "Website" },
+  { key: "category", label: "Category" },
+  { key: "contactEmail", label: "Contact email" },
+];
+
+function ImportPanel({ token, onImported, onClose }: {
+  token: string; onImported: () => Promise<void>; onClose: () => void;
+}) {
+  const [headers, setHeaders] = useState<string[]>([]);
+  const [rows, setRows] = useState<Record<string, string>[]>([]);
+  const [map, setMap] = useState<Record<string, string>>({});
+  const [noteCols, setNoteCols] = useState<string[]>([]);
+  const [preset, setPreset] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<{ created: number; skipped: number } | null>(null);
+  const [err, setErr] = useState("");
+
+  function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setErr(""); setResult(null);
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const { headers: h, rows: r } = parseCsv(String(reader.result ?? ""));
+        if (!h.length) { setErr("Couldn't read any columns from that file."); return; }
+        setHeaders(h); setRows(r);
+        const auto = autoMap(h, SMARTSCOUT_HINTS);
+        setMap(auto);
+        setNoteCols(h.filter((c) => !Object.values(auto).includes(c)));
+      } catch { setErr("Failed to parse the CSV."); }
+    };
+    reader.readAsText(file);
+  }
+
+  function applyPreset() {
+    setPreset(true);
+    const auto = autoMap(headers, SMARTSCOUT_HINTS);
+    setMap(auto);
+    setNoteCols(headers.filter((c) => !Object.values(auto).includes(c)));
+  }
+
+  const brandCol = map.brandName;
+  const buildRow = (r: Record<string, string>) => {
+    const notes = noteCols
+      .map((c) => (r[c] ? `${c}: ${r[c]}` : ""))
+      .filter(Boolean).join(" · ").slice(0, 500);
+    return {
+      brandName: brandCol ? r[brandCol] : "",
+      website: map.website ? r[map.website] : "",
+      category: map.category ? r[map.category] : "",
+      contactEmail: map.contactEmail ? r[map.contactEmail] : "",
+      notes: notes ? `${preset ? "SmartScout import" : "CSV import"} — ${notes}` : "",
+    };
+  };
+
+  const ready = !!brandCol && rows.length > 0;
+  const validCount = ready ? rows.filter((r) => (r[brandCol] ?? "").trim()).length : 0;
+
+  async function doImport() {
+    setBusy(true); setErr("");
+    const payload = { rows: rows.map(buildRow), source: preset ? "smartscout" : "import" };
+    const res = await fetch("/api/admin/deals/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-token": token },
+      body: JSON.stringify(payload),
+    });
+    setBusy(false);
+    if (!res.ok) { setErr((await res.json()).error ?? "Import failed."); return; }
+    const j = await res.json();
+    setResult(j);
+    await onImported();
+  }
+
+  const sel: React.CSSProperties = {
+    padding: "6px 8px", fontSize: 12, border: `1px solid ${border}`, borderRadius: 6, fontFamily: "inherit", background: "#fff",
+  };
+
+  return (
+    <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 12, padding: 18, marginBottom: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <p style={{ fontSize: 14, fontWeight: 800, color: navy, margin: 0 }}>Import brands from CSV</p>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 11, color: muted }}>SmartScout, Jungle Scout, Helium 10, or any brand list</span>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: muted, fontSize: 18, cursor: "pointer", lineHeight: 1 }}>×</button>
+        </div>
+      </div>
+
+      <input type="file" accept=".csv,text/csv" onChange={onFile} style={{ fontSize: 13, marginBottom: 12 }} />
+      {err && <p style={{ color: "#DC2626", fontSize: 12, margin: "0 0 10px" }}>{err}</p>}
+
+      {headers.length > 0 && !result && (
+        <>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
+            <button onClick={applyPreset}
+              style={{ background: preset ? navy : "#F3F4F6", color: preset ? "#fff" : muted, border: "none", borderRadius: 6, padding: "5px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+              SmartScout preset
+            </button>
+            <span style={{ fontSize: 11, color: muted }}>{rows.length} rows · {headers.length} columns</span>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(190px,1fr))", gap: 10, marginBottom: 12 }}>
+            {CORE_FIELDS.map((f) => (
+              <label key={f.key} style={{ fontSize: 12 }}>
+                <span style={{ color: muted, fontWeight: 600 }}>{f.label}{f.required && <span style={{ color: "#DC2626" }}> *</span>}</span>
+                <select value={map[f.key] ?? ""} onChange={(e) => {
+                  const v = e.target.value;
+                  setMap((m) => ({ ...m, [f.key]: v }));
+                  setNoteCols((nc) => v ? nc.filter((c) => c !== v) : nc);
+                }} style={{ ...sel, width: "100%", marginTop: 3 }}>
+                  <option value="">— none —</option>
+                  {headers.map((h) => <option key={h} value={h}>{h}</option>)}
+                </select>
+              </label>
+            ))}
+          </div>
+
+          <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: muted, margin: "0 0 6px" }}>
+            Fold into notes
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+            {headers.filter((h) => !Object.values(map).includes(h)).map((h) => {
+              const on = noteCols.includes(h);
+              return (
+                <button key={h} onClick={() => setNoteCols((nc) => on ? nc.filter((c) => c !== h) : [...nc, h])}
+                  style={{ background: on ? "#EEF2FF" : "#F3F4F6", color: on ? "#3730A3" : muted, border: `1px solid ${on ? "#C7D2FE" : border}`, borderRadius: 6, padding: "3px 9px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>
+                  {h}
+                </button>
+              );
+            })}
+          </div>
+
+          {ready && (
+            <div style={{ border: `1px solid ${border}`, borderRadius: 8, padding: 10, marginBottom: 12, background: "#FAFAFA" }}>
+              <p style={{ fontSize: 11, color: muted, margin: "0 0 6px", fontWeight: 700 }}>Preview (first 3)</p>
+              {rows.slice(0, 3).map((r, i) => {
+                const b = buildRow(r);
+                return (
+                  <div key={i} style={{ fontSize: 12, marginBottom: 6, color: navy }}>
+                    <strong>{b.brandName || "(no name — will skip)"}</strong>
+                    {b.category ? ` · ${b.category}` : ""}{b.website ? ` · ${b.website}` : ""}
+                    {b.notes ? <div style={{ fontSize: 11, color: muted, marginTop: 1 }}>{b.notes}</div> : null}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <button onClick={doImport} disabled={!ready || busy}
+            style={{ background: ready ? navy : "#9CA3AF", color: "#fff", border: "none", borderRadius: 8, padding: "9px 20px", fontSize: 13, fontWeight: 700, cursor: ready ? "pointer" : "not-allowed" }}>
+            {busy ? "Importing…" : `Import ${validCount} brand${validCount === 1 ? "" : "s"}`}
+          </button>
+        </>
+      )}
+
+      {result && (
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <p style={{ fontSize: 13, color: green, fontWeight: 700, margin: 0 }}>
+            Imported {result.created} · skipped {result.skipped} (blank or already in pipeline)
+          </p>
+          <button onClick={onClose} style={{ background: navy, color: "#fff", border: "none", borderRadius: 6, padding: "5px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Done</button>
+        </div>
+      )}
+    </div>
   );
 }
 
