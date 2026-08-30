@@ -122,6 +122,7 @@ function Nav({ onContact }: { onContact: () => void }) {
             <div className="nav-links" style={{ display: "flex", gap: 28 }}>
               <a href="#services" style={{ fontSize: 14, fontWeight: 500, color: muted }}>Services</a>
               <a href="#how" style={{ fontSize: 14, fontWeight: 500, color: muted }}>How it works</a>
+              <a href="/for-brands" style={{ fontSize: 14, fontWeight: 500, color: muted }}>For brands</a>
               <a href="#about" style={{ fontSize: 14, fontWeight: 500, color: muted }}>About</a>
             </div>
             <button className="nav-cta" onClick={onContact}

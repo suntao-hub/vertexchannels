@@ -76,6 +76,7 @@ interface Prospect {
   stage: string;
   source: string;
   archiveReason: string;
+  openingLine: string;
   notes: string;
   firstEmailAt: string | null;
   secondEmailAt: string | null;
@@ -527,7 +528,18 @@ function ProspectDetail({ prospect, templates, token, keepaOn, onUpdate, onReloa
         {field("2nd email", "secondEmailAt", "date")}
       </div>
 
-      <label style={{ display: "block", fontSize: 12, marginTop: 4 }}>
+      <label key={`opening-${prospect.id}`} style={{ display: "block", fontSize: 12, marginTop: 4 }}>
+        <span style={{ color: muted, fontWeight: 600 }}>
+          Opening line <span style={{ fontWeight: 400 }}>— the specific hook for the first cold email ({"{{opening}}"})</span>
+        </span>
+        <textarea defaultValue={prospect.openingLine} rows={2}
+          placeholder="e.g. Noticed 8 sellers on your top listing and no Walmart presence."
+          onBlur={(e) => { if (e.target.value !== prospect.openingLine) patch({ openingLine: e.target.value }); }}
+          style={{ width: "100%", padding: "8px 10px", fontSize: 13, border: `1px solid ${border}`, borderRadius: 6, marginTop: 3, boxSizing: "border-box", resize: "vertical", fontFamily: "inherit" }}
+        />
+      </label>
+
+      <label style={{ display: "block", fontSize: 12, marginTop: 10 }}>
         <span style={{ color: muted, fontWeight: 600 }}>Notes</span>
         <textarea value={notes} onChange={(e) => setNotes(e.target.value)} onBlur={() => { if (notes !== prospect.notes) patch({ notes }); }}
           rows={3}

@@ -29,12 +29,14 @@ export const PROSPECT_TEMPLATES: TemplateSeed[] = [
     name: "Initial outreach",
     step: 1,
     waitDays: 0,
-    subject: "Wholesale partnership — {{brand}} across more channels",
+    subject: "{{brand}} on Walmart, eBay & Newegg",
     body: `Hi {{contact}},
 
-I'm {{yourName}} with {{company}}, a US-based multi-channel retailer. We run authorized wholesale accounts and place brands across Amazon, Walmart, eBay, and Newegg.
+{{opening}}
 
-We've been watching {{brand}} and believe your {{category}} line would sell well with our customer base. We'd like to open a wholesale account and grow your presence on the channels you aren't fully covering today.
+I'm {{yourName}} with {{company}}. We run authorized wholesale accounts for brands and manage their presence on Walmart, eBay, Newegg, and other marketplaces — listings, pricing, ads, and fulfillment.
+
+Your {{category}} line looks strong on Amazon and light everywhere else. We'd like to open a wholesale account and run those channels for you.
 
 What do you need from us to get set up as an authorized reseller?
 
@@ -48,15 +50,17 @@ Thanks,
     name: "Follow-up 1",
     step: 2,
     waitDays: 4,
-    subject: "Re: Wholesale partnership — {{brand}}",
+    subject: "Re: {{brand}} on Walmart, eBay & Newegg",
     body: `Hi {{contact}},
 
 Circling back on opening a wholesale account for {{brand}}.
 
 What we bring, briefly:
-- Clean listings and A+ content, active advertising, and MAP monitoring
-- Distribution onto Walmart, eBay, and Newegg where there are gaps today
-- A path to move aged or excess inventory across those channels rather than discounting it on Amazon
+- Walmart, eBay, and Newegg run end to end — listings, pricing, ads, fulfillment
+- MAP monitoring and unauthorized-seller cleanup across marketplaces
+- A path to move aged or excess inventory across those channels instead of discounting on Amazon
+
+More on how it works: {{onepager}}
 
 Happy to jump on a short call if that's easier — what works for you?
 
@@ -69,7 +73,7 @@ Happy to jump on a short call if that's easier — what works for you?
     name: "Follow-up 2 (breakup)",
     step: 3,
     waitDays: 7,
-    subject: "Re: Wholesale partnership — {{brand}}",
+    subject: "Re: {{brand}} on Walmart, eBay & Newegg",
     body: `Hi {{contact}},
 
 I won't keep crowding your inbox — this is my last note for now.
@@ -86,7 +90,7 @@ Thanks either way,
     name: "Reply: not accepting new sellers",
     step: 0,
     waitDays: 0,
-    subject: "Re: Wholesale partnership — {{brand}}",
+    subject: "Re: {{brand}} on Walmart, eBay & Newegg",
     body: `Hi {{contact}},
 
 Understood, and thanks for the quick reply. Can you help me understand the reasoning — is it a distribution policy, or more about controlling how {{brand}} is represented on marketplaces?
@@ -102,7 +106,7 @@ I ask because most brands we work with came to us with unauthorized sellers alre
     name: "Reply: after a no",
     step: 0,
     waitDays: 0,
-    subject: "Re: Wholesale partnership — {{brand}}",
+    subject: "Re: {{brand}} on Walmart, eBay & Newegg",
     body: `Hi {{contact}},
 
 No problem, and thanks for getting back to me.
@@ -197,11 +201,14 @@ export const DEFAULT_TEMPLATES: TemplateSeed[] = [...PROSPECT_TEMPLATES, ...LEAD
 // ─── Merge rendering ─────────────────────────────────────────────────────────
 
 function envDefaults(): Record<string, string> {
+  const site = process.env.OUTREACH_SITE || "https://vertexchannels.com";
   return {
     yourName: process.env.OUTREACH_SENDER_NAME || "Suntao",
     company: process.env.OUTREACH_COMPANY || "Vertex Channels",
     title: process.env.OUTREACH_SENDER_TITLE || "Partnerships",
-    site: process.env.OUTREACH_SITE || "https://vertexchannels.com",
+    site,
+    onepager: `${site.replace(/\/$/, "")}/for-brands`,
+    address: process.env.OUTREACH_ADDRESS || "",
   };
 }
 
@@ -210,6 +217,7 @@ export interface ProspectMergeInput {
   contact: string;
   category: string;
   website: string;
+  opening: string;
 }
 
 export interface LeadMergeInput {
@@ -225,6 +233,7 @@ export function prospectMergeValues(p: ProspectMergeInput): Record<string, strin
     contact: p.contact?.trim() || "there",
     category: p.category?.trim() || "product",
     website: p.website || "",
+    opening: p.opening?.trim() || "",
   };
 }
 
@@ -240,5 +249,21 @@ export function leadMergeValues(l: LeadMergeInput): Record<string, string> {
 }
 
 export function renderTemplate(text: string, values: Record<string, string>): string {
-  return text.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, k) => values[k] ?? `{{${k}}}`);
+  return text
+    .replace(/\{\{\s*(\w+)\s*\}\}/g, (_, k) => values[k] ?? `{{${k}}}`)
+    .replace(/\n{3,}/g, "\n\n") // collapse gaps left by empty merge fields
+    .trim();
+}
+
+// CAN-SPAM footer for cold (prospect) outreach: identifies the sender, gives a
+// postal address, and offers an opt-out. Appended at draft time — see
+// app/api/admin/deals/outreach/route.ts. OUTREACH_ADDRESS must be set.
+export function coldOutreachFooter(values: Record<string, string>): string {
+  const lines = [
+    "—",
+    "{{yourName}} · {{company}}",
+    values.address?.trim() ? "{{address}}" : "",
+    'Not the right fit? Reply "no thanks" and I won\'t follow up.',
+  ].filter(Boolean);
+  return "\n\n" + renderTemplate(lines.join("\n"), values);
 }

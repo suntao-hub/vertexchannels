@@ -41,6 +41,7 @@ model BrandProspect {
   // manual | smartscout | competitor_scan | referral
   archiveReason String   @default("")
   // bad_price | low_score | no_response | denial | hazmat | restricted | other
+  openingLine   String   @default("") // per-brand custom hook for the first cold email ({{opening}})
   notes         String   @default("")
   firstEmailAt  DateTime?
   secondEmailAt DateTime?

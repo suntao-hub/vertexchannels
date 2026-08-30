@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db/client";
 import { checkAuth } from "@/lib/admin/auth";
-import { renderTemplate, prospectMergeValues, leadMergeValues } from "@/lib/deals/templates";
+import { renderTemplate, prospectMergeValues, leadMergeValues, coldOutreachFooter } from "@/lib/deals/templates";
 
 // Create a draft outreach email for a prospect OR a lead from a template.
 // Merge fields are resolved now; the draft stays editable until sent or logged.
@@ -16,20 +16,26 @@ export async function POST(req: NextRequest) {
   let values: Record<string, string>;
   let toEmail = "";
   const data: { prospectId?: string; leadId?: string } = {};
+  let isCold = false;
 
   if (b.prospectId) {
     const p = await db.brandProspect.findUniqueOrThrow({ where: { id: b.prospectId } });
     values = prospectMergeValues({
-      brand: p.brandName, contact: p.contactName, category: p.category, website: p.website,
+      brand: p.brandName, contact: p.contactName, category: p.category,
+      website: p.website, opening: p.openingLine,
     });
     toEmail = p.contactEmail;
     data.prospectId = p.id;
+    isCold = true;
   } else {
     const l = await db.contactLead.findUniqueOrThrow({ where: { id: b.leadId } });
     values = leadMergeValues({ name: l.name, company: l.company, service: l.service });
     toEmail = l.email;
     data.leadId = l.id;
   }
+
+  let body = renderTemplate(template.body, values);
+  if (isCold) body += coldOutreachFooter(values); // CAN-SPAM footer on cold outreach
 
   const draft = await db.outreachEmail.create({
     data: {
@@ -38,7 +44,7 @@ export async function POST(req: NextRequest) {
       step: template.step,
       toEmail,
       subject: renderTemplate(template.subject, values),
-      body: renderTemplate(template.body, values),
+      body,
     },
   });
   return NextResponse.json(draft);
