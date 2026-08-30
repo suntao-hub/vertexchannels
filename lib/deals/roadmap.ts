@@ -29,7 +29,7 @@ export const NOT_NOW = [
 
 export const DEFAULT_ROADMAP: RoadmapSeed[] = [
   { phase: "P0", order: 1, title: "Lock the niche in one sentence",
-    detail: "Recommend: \"We run Walmart, eBay, Newegg and Woot for mid-size tools / automotive / garage brands.\" Pick wherever you actually have relationships or category knowledge." },
+    detail: "DONE: \"We run Walmart, eBay, and Newegg for mid-size tools, automotive, and garage-equipment brands that are strong on Amazon and barely present anywhere else.\"" },
   { phase: "P0", order: 2, title: "Build the target list in Deal Desk — 40 brands scored",
     detail: "Pull a SmartScout brands export for the niche, import it, score. Filter: strong Amazon product, thin/no non-Amazon presence, ~$1M–20M, MAP-friendly, not hazmat." },
   { phase: "P0", order: 3, title: "Write the one-page offer",
