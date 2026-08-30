@@ -50,9 +50,10 @@ export function parseCsv(text: string): ParsedCsv {
 // lowercase substrings to try against each header.
 export const SMARTSCOUT_HINTS: Record<string, string[]> = {
   brandName: ["brand name", "brand", "manufacturer"],
-  website: ["website", "domain", "url", "web site"],
+  website: ["website", "domain", "web site"],
   category: ["subcategory", "sub category", "category", "main category"],
   contactEmail: ["email", "contact email", "e-mail"],
+  fitRank: ["fit rank", "rank", "priority"],
 };
 
 export function autoMap(headers: string[], hints: Record<string, string[]>): Record<string, string> {

@@ -76,6 +76,7 @@ interface Prospect {
   stage: string;
   source: string;
   archiveReason: string;
+  fitRank: number | null;
   openingLine: string;
   notes: string;
   firstEmailAt: string | null;
@@ -598,6 +599,7 @@ export default function DealDeskPage() {
   const [loading, setLoading] = useState(true);
   const [keepaOn, setKeepaOn] = useState(false);
   const [stageFilter, setStageFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("fit");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
   const [showImport, setShowImport] = useState(false);
@@ -647,9 +649,16 @@ export default function DealDeskPage() {
     return <Centered><a href="/admin" style={{ color: orange, fontWeight: 700 }}>Sign in to continue →</a></Centered>;
   }
 
-  const filtered = stageFilter === "all" ? prospects : prospects.filter((p) => p.stage === stageFilter);
-  const selected = prospects.find((p) => p.id === selectedId) ?? null;
   const bestScore = (p: Prospect) => p.products.reduce((m, x) => Math.max(m, x.score ?? -1), -1);
+  const SORTS: Record<string, (a: Prospect, b: Prospect) => number> = {
+    fit: (a, b) => (a.fitRank ?? 9e9) - (b.fitRank ?? 9e9) || a.brandName.localeCompare(b.brandName),
+    score: (a, b) => bestScore(b) - bestScore(a),
+    updated: (a, b) => +new Date(b.updatedAt) - +new Date(a.updatedAt),
+    name: (a, b) => a.brandName.localeCompare(b.brandName),
+  };
+  const filtered = (stageFilter === "all" ? prospects : prospects.filter((p) => p.stage === stageFilter))
+    .slice().sort(SORTS[sortBy] ?? SORTS.fit);
+  const selected = prospects.find((p) => p.id === selectedId) ?? null;
 
   return (
     <AdminShell
@@ -677,8 +686,15 @@ export default function DealDeskPage() {
               {s === "all" ? `All (${prospects.length})` : `${STAGE_LABEL[s]} (${prospects.filter((p) => p.stage === s).length})`}
             </button>
           ))}
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
+            style={{ marginLeft: "auto", fontSize: 12, border: `1px solid ${border}`, borderRadius: 8, padding: "6px 8px", color: muted, background: "#fff" }}>
+            <option value="fit">Sort: Fit rank</option>
+            <option value="score">Sort: Best score</option>
+            <option value="updated">Sort: Recently updated</option>
+            <option value="name">Sort: A–Z</option>
+          </select>
           <button onClick={() => { setShowImport((v) => !v); setShowNew(false); }}
-            style={{ marginLeft: "auto", background: "#fff", color: navy, border: `1px solid ${border}`, borderRadius: 8, padding: "7px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+            style={{ background: "#fff", color: navy, border: `1px solid ${border}`, borderRadius: 8, padding: "7px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
             Import CSV
           </button>
           <button onClick={() => { setShowNew((v) => !v); setShowImport(false); }}
@@ -713,7 +729,7 @@ export default function DealDeskPage() {
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                 <thead>
                   <tr style={{ background: "#F9FAFB", borderBottom: `1px solid ${border}` }}>
-                    {["Brand", "Stage", "Products", "Best"].map((h) => (
+                    {["#", "Brand", "Stage", "Products", "Best"].map((h) => (
                       <th key={h} style={{ padding: "9px 12px", textAlign: "left", fontSize: 11, color: muted, fontWeight: 700 }}>{h}</th>
                     ))}
                   </tr>
@@ -724,6 +740,7 @@ export default function DealDeskPage() {
                     return (
                       <tr key={p.id} onClick={() => setSelectedId(p.id)}
                         style={{ borderBottom: `1px solid ${border}`, cursor: "pointer", background: selectedId === p.id ? "#F0F9FF" : "#fff" }}>
+                        <td style={{ padding: "9px 12px", color: muted, fontWeight: 700, width: 32 }}>{p.fitRank ?? "—"}</td>
                         <td style={{ padding: "9px 12px", fontWeight: 700, color: navy }}>
                           {p.brandName}
                           <div style={{ fontSize: 11, color: muted, fontWeight: 400 }}>{p.category || "—"}</div>
@@ -767,6 +784,7 @@ const CORE_FIELDS: { key: string; label: string; required?: boolean }[] = [
   { key: "website", label: "Website" },
   { key: "category", label: "Category" },
   { key: "contactEmail", label: "Contact email" },
+  { key: "fitRank", label: "Fit rank" },
 ];
 
 function ImportPanel({ token, onImported, onClose }: {
@@ -816,6 +834,7 @@ function ImportPanel({ token, onImported, onClose }: {
       website: map.website ? r[map.website] : "",
       category: map.category ? r[map.category] : "",
       contactEmail: map.contactEmail ? r[map.contactEmail] : "",
+      fitRank: map.fitRank ? r[map.fitRank] : "",
       notes: notes ? `${preset ? "SmartScout import" : "CSV import"} — ${notes}` : "",
     };
   };

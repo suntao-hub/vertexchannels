@@ -7,7 +7,14 @@ interface ImportRow {
   website?: string;
   category?: string;
   contactEmail?: string;
+  fitRank?: number | null;
   notes?: string;
+}
+
+// pull the first integer out of things like "1", "1 of 35", "#1"
+function parseRank(v: unknown): number | null {
+  const m = String(v ?? "").match(/\d+/);
+  return m ? parseInt(m[0], 10) : null;
 }
 
 // Bulk-create prospects from a parsed CSV. Dedupes by brand name
@@ -41,6 +48,7 @@ export async function POST(req: NextRequest) {
         website: (r.website ?? "").trim(),
         category: (r.category ?? "").trim(),
         contactEmail: (r.contactEmail ?? "").trim(),
+        fitRank: parseRank(r.fitRank),
         notes: (r.notes ?? "").trim(),
         source: source === "smartscout" ? "smartscout" : "import",
       },
