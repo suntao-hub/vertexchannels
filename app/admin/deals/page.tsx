@@ -497,6 +497,7 @@ function ProspectDetail({ prospect, templates, token, keepaOn, onUpdate, onReloa
     <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 12, padding: 18 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
         <input
+          key={`name-${prospect.id}`}
           defaultValue={prospect.brandName}
           onBlur={(e) => { if (e.target.value !== prospect.brandName) patch({ brandName: e.target.value }); }}
           style={{ fontSize: 17, fontWeight: 800, color: navy, border: "none", outline: "none", width: "70%", fontFamily: "inherit" }}
@@ -760,6 +761,7 @@ export default function DealDeskPage() {
 
           {selected && (
             <ProspectDetail
+              key={selected.id}
               prospect={selected} templates={templates} token={token} keepaOn={keepaOn}
               onUpdate={(np) => setProspects((ps) => ps.map((x) => x.id === np.id ? np : x))}
               onReload={reloadSilent}
