@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Vertex Channels — Wholesale & Multi-Channel Partner",
-  description: "Amazon is one channel. We run the rest — putting your catalog on Walmart, eBay, and Newegg as your authorized reseller, and clearing excess inventory across all of them.",
+  description: "We run your marketplace presence — your Amazon account (Seller or Vendor Central) operated on your behalf, Walmart, eBay, and Newegg run as your authorized reseller, and excess inventory cleared across all of it.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

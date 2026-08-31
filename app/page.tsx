@@ -34,7 +34,7 @@ const SERVICES = [
   {
     d: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
     title: "Managed Marketplace Accounts",
-    body: "Prefer to keep your own Seller Central? We run it for you — same operational work, your account, your data, your customer relationships.",
+    body: "Prefer to keep your own account? We operate your Seller or Vendor Central on your behalf — ads, catalog, cases, chargeback and shortage recovery. Your account, your data, your customer relationships.",
   },
   {
     d: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15",
@@ -279,13 +279,13 @@ export default function Home() {
             Wholesale &amp; Multi-Channel Partner
           </span>
           <h1 style={{ fontSize: "clamp(32px, 5.5vw, 56px)", fontWeight: 800, color: "#fff", lineHeight: 1.15, margin: "0 0 24px" }}>
-            Amazon is one channel.<br /><span style={{ color: orange }}>We run the rest.</span>
+            Amazon is one channel.<br /><span style={{ color: orange }}>We run them all.</span>
           </h1>
           <p style={{ fontSize: "clamp(16px, 2vw, 20px)", color: "#CBD5E1", lineHeight: 1.7,
-            margin: "0 auto 40px", maxWidth: 640 }}>
-            Vertex Channels is your wholesale and multi-channel partner — putting your catalog on Walmart, eBay,
-            and Newegg, and clearing excess inventory across all of them. You keep control of your brand;
-            we own the operational grind.
+            margin: "0 auto 40px", maxWidth: 660 }}>
+            Vertex Channels runs your marketplace presence — your Amazon account (Seller or Vendor Central)
+            operated on your behalf, Walmart, eBay, and Newegg run as your authorized reseller, and excess
+            inventory cleared across all of it. You keep control of your brand; we own the operational grind.
           </p>
           <div className="hero-buttons" style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
             <button onClick={scrollToContact}

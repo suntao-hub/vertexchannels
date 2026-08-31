@@ -9,7 +9,7 @@ const muted = "#6B7280";
 
 export const metadata: Metadata = {
   title: "For Brands — Vertex Channels",
-  description: "How Vertex Channels runs Walmart, eBay, and Newegg for tools, automotive, and garage-equipment brands as an authorized reseller — on a share of the revenue we add.",
+  description: "How Vertex Channels runs your marketplace channels — Amazon Seller or Vendor Central operated for you, Walmart, eBay and Newegg as your authorized reseller, and excess inventory cleared — on a share of the revenue we add.",
 };
 
 const STEPS = [
@@ -63,12 +63,12 @@ export default function ForBrands() {
             For Brands
           </span>
           <h1 style={{ fontSize: "clamp(30px, 5vw, 46px)", fontWeight: 800, color: "#fff", lineHeight: 1.15, margin: "0 0 20px" }}>
-            You handle Amazon.<br /><span style={{ color: orange }}>We run everything else.</span>
+            You own the brand.<br /><span style={{ color: orange }}>We run the channels.</span>
           </h1>
           <p style={{ fontSize: 18, color: "#CBD5E1", lineHeight: 1.7, margin: 0 }}>
-            Vertex Channels becomes your authorized reseller on Walmart, eBay, Newegg, and other
-            marketplaces — and moves the excess inventory that's costing you storage fees. You keep
-            control of your brand. We work on a share of the revenue we add.
+            Vertex Channels operates your Amazon account (Seller or Vendor Central) on your behalf, runs
+            Walmart, eBay, and Newegg as your authorized reseller, and moves the excess inventory that&apos;s
+            costing you storage fees. You keep control of your brand; we work on a share of the revenue we add.
           </p>
         </div>
       </section>
@@ -106,6 +106,29 @@ export default function ForBrands() {
       </Section>
 
       <Section bg={cream}>
+        <Kicker>Already on Amazon</Kicker>
+        <h2 style={{ fontSize: "clamp(22px, 3.5vw, 32px)", fontWeight: 800, margin: "0 0 20px" }}>
+          Seller or Vendor — we operate the account for you
+        </h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 10, padding: "16px 18px" }}>
+            <p style={{ fontSize: 15, fontWeight: 700, margin: "0 0 6px", color: navy }}>Chargeback &amp; shortage recovery</p>
+            <p style={{ fontSize: 14, color: muted, lineHeight: 1.6, margin: 0 }}>
+              We audit 18 months of Vendor deductions, dispute what&apos;s recoverable — typically 3–8% of revenue —
+              and fix the operational causes. Often paid as a share of what we recover.
+            </p>
+          </div>
+          <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 10, padding: "16px 18px" }}>
+            <p style={{ fontSize: 15, fontWeight: 700, margin: "0 0 6px", color: navy }}>Vendor-to-hybrid transition</p>
+            <p style={{ fontSize: 14, color: muted, lineHeight: 1.6, margin: 0 }}>
+              Losing ground on Vendor? We stand up a Seller account, migrate the catalog, and run both through
+              the overlap — so you keep control of price and margin.
+            </p>
+          </div>
+        </div>
+      </Section>
+
+      <Section>
         <Kicker>Track record</Kicker>
         <h2 style={{ fontSize: "clamp(22px, 3.5vw, 32px)", fontWeight: 800, margin: "0 0 16px" }}>
           $1.3M+ driven, built and run
@@ -121,7 +144,7 @@ export default function ForBrands() {
         </p>
       </Section>
 
-      <Section>
+      <Section bg={cream}>
         <Kicker>Who it&apos;s for</Kicker>
         <h2 style={{ fontSize: "clamp(22px, 3.5vw, 32px)", fontWeight: 800, margin: "0 0 24px" }}>
           A good fit if you&apos;re a brand with&hellip;
