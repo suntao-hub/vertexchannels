@@ -39,6 +39,9 @@ model BrandProspect {
   // sourced | researched | contacted | replied | negotiating | account_open | active | passed
   source        String   @default("manual")
   // manual | smartscout | competitor_scan | referral
+  angle         String   @default("channel")
+  // channel (full marketplace management) | excess (excess-inventory buy) | partner (referral partner, not a brand to pitch)
+  referredBy    String   @default("") // who sent this lead — for referral-fee tracking
   archiveReason String   @default("")
   // bad_price | low_score | no_response | denial | hazmat | restricted | other
   fitRank       Int?     // import rank — lower = better; sorts the pipeline list

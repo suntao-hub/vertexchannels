@@ -4,7 +4,8 @@ import { checkAuth } from "@/lib/admin/auth";
 
 const STR_FIELDS = [
   "brandName", "website", "contactName", "contactEmail", "contactPhone",
-  "category", "stage", "source", "archiveReason", "notes", "openingLine",
+  "category", "stage", "source", "angle", "referredBy", "archiveReason",
+  "notes", "openingLine",
 ] as const;
 const DATE_FIELDS = ["firstEmailAt", "secondEmailAt"] as const;
 

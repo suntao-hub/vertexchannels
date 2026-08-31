@@ -75,6 +75,8 @@ interface Prospect {
   category: string;
   stage: string;
   source: string;
+  angle: string;
+  referredBy: string;
   archiveReason: string;
   fitRank: number | null;
   openingLine: string;
@@ -99,6 +101,16 @@ const BAND_STYLE: Record<string, { bg: string; fg: string; label: string }> = {
   high_priority: { bg: "#DCFCE7", fg: "#15803D", label: "High priority" },
   contact: { bg: "#FEF9C3", fg: "#A16207", label: "Contact" },
   archive: { bg: "#FEE2E2", fg: "#991B1B", label: "Archive" },
+};
+
+const ANGLES = ["channel", "excess", "partner"];
+const ANGLE_LABEL: Record<string, string> = {
+  channel: "Channel management", excess: "Excess inventory", partner: "Referral partner",
+};
+const ANGLE_TAG: Record<string, { bg: string; fg: string; short: string }> = {
+  channel: { bg: "#EEF2FF", fg: "#3730A3", short: "Channel" },
+  excess: { bg: "#FEF3C7", fg: "#92400E", short: "Excess" },
+  partner: { bg: "#E0E7FF", fg: "#3730A3", short: "Partner" },
 };
 
 // ─── Session ─────────────────────────────────────────────────────────────────
@@ -520,6 +532,14 @@ function ProspectDetail({ prospect, templates, token, keepaOn, onUpdate, onReloa
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <label style={{ display: "block", fontSize: 12 }}>
+          <span style={{ color: muted, fontWeight: 600 }}>Angle</span>
+          <select value={prospect.angle || "channel"} onChange={(e) => patch({ angle: e.target.value })}
+            style={{ width: "100%", padding: "6px 8px", fontSize: 13, border: `1px solid ${border}`, borderRadius: 6, marginTop: 3, boxSizing: "border-box", background: "#fff", fontFamily: "inherit" }}>
+            {ANGLES.map((a) => <option key={a} value={a}>{ANGLE_LABEL[a]}</option>)}
+          </select>
+        </label>
+        {field("Referred by", "referredBy")}
         {field("Website", "website")}
         {field("Category", "category")}
         {field("Contact name", "contactName")}
@@ -600,6 +620,7 @@ export default function DealDeskPage() {
   const [loading, setLoading] = useState(true);
   const [keepaOn, setKeepaOn] = useState(false);
   const [stageFilter, setStageFilter] = useState("all");
+  const [angleFilter, setAngleFilter] = useState("all");
   const [sortBy, setSortBy] = useState("fit");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
@@ -657,7 +678,9 @@ export default function DealDeskPage() {
     updated: (a, b) => +new Date(b.updatedAt) - +new Date(a.updatedAt),
     name: (a, b) => a.brandName.localeCompare(b.brandName),
   };
-  const filtered = (stageFilter === "all" ? prospects : prospects.filter((p) => p.stage === stageFilter))
+  const filtered = prospects
+    .filter((p) => stageFilter === "all" || p.stage === stageFilter)
+    .filter((p) => angleFilter === "all" || (p.angle || "channel") === angleFilter)
     .slice().sort(SORTS[sortBy] ?? SORTS.fit);
   const selected = prospects.find((p) => p.id === selectedId) ?? null;
 
@@ -687,8 +710,13 @@ export default function DealDeskPage() {
               {s === "all" ? `All (${prospects.length})` : `${STAGE_LABEL[s]} (${prospects.filter((p) => p.stage === s).length})`}
             </button>
           ))}
-          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
+          <select value={angleFilter} onChange={(e) => setAngleFilter(e.target.value)}
             style={{ marginLeft: "auto", fontSize: 12, border: `1px solid ${border}`, borderRadius: 8, padding: "6px 8px", color: muted, background: "#fff" }}>
+            <option value="all">All angles</option>
+            {ANGLES.map((a) => <option key={a} value={a}>{ANGLE_LABEL[a]}</option>)}
+          </select>
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
+            style={{ fontSize: 12, border: `1px solid ${border}`, borderRadius: 8, padding: "6px 8px", color: muted, background: "#fff" }}>
             <option value="fit">Sort: Fit rank</option>
             <option value="score">Sort: Best score</option>
             <option value="updated">Sort: Recently updated</option>
@@ -743,7 +771,14 @@ export default function DealDeskPage() {
                         style={{ borderBottom: `1px solid ${border}`, cursor: "pointer", background: selectedId === p.id ? "#F0F9FF" : "#fff" }}>
                         <td style={{ padding: "9px 12px", color: muted, fontWeight: 700, width: 32 }}>{p.fitRank ?? "—"}</td>
                         <td style={{ padding: "9px 12px", fontWeight: 700, color: navy }}>
-                          {p.brandName}
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                            {p.brandName}
+                            {p.angle && p.angle !== "channel" && (
+                              <span style={{ background: ANGLE_TAG[p.angle]?.bg, color: ANGLE_TAG[p.angle]?.fg, fontSize: 10, fontWeight: 700, padding: "1px 6px", borderRadius: 10 }}>
+                                {ANGLE_TAG[p.angle]?.short}
+                              </span>
+                            )}
+                          </span>
                           <div style={{ fontSize: 11, color: muted, fontWeight: 400 }}>{p.category || "—"}</div>
                         </td>
                         <td style={{ padding: "9px 12px", color: muted }}>{STAGE_LABEL[p.stage] ?? p.stage}</td>
