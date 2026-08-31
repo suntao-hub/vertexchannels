@@ -424,13 +424,13 @@ export default function Home() {
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 18 }}>
               {[
-                { src: "/account-performance.png", w: 1320, h: 697, alt: "Account Performance dashboard — revenue split, ad and organic KPIs, and placement breakdown", cap: "Account Performance" },
-                { src: "/search-term-dashboard.png", w: 1330, h: 593, alt: "Search Term Dashboard — spend, sales, ACoS, ROAS and weekly spend trend", cap: "Search Term Dashboard" },
-                { src: "/ppc-intent-analysis.png", w: 1418, h: 786, alt: "PPC Intent Analysis — wasted-spend detection and match-type efficiency", cap: "PPC Intent Analysis" },
+                { src: "/account-performance.png", alt: "Account Performance dashboard — revenue split and ad/organic KPIs", cap: "Account Performance" },
+                { src: "/search-term-dashboard.png", alt: "Search Term Dashboard — spend, sales, ACoS, ROAS and weekly spend trend", cap: "Search Term Dashboard" },
+                { src: "/ppc-intent-analysis.png", alt: "PPC Intent Analysis — wasted-spend detection and match-type efficiency", cap: "PPC Intent Analysis" },
               ].map(img => (
                 <figure key={img.src} style={{ margin: 0 }}>
                   <div style={{ borderRadius: 10, border: `1px solid ${border}`, overflow: "hidden", boxShadow: "0 12px 34px rgba(10,35,51,0.10)" }}>
-                    <Image src={img.src} width={img.w} height={img.h} alt={img.alt}
+                    <Image src={img.src} width={1300} height={560} alt={img.alt}
                       style={{ width: "100%", height: "auto", display: "block" }} />
                   </div>
                   <figcaption style={{ fontSize: 11.5, color: muted, textAlign: "center", margin: "8px 0 0" }}>{img.cap}</figcaption>
