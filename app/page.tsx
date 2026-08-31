@@ -392,6 +392,15 @@ export default function Home() {
                 We&apos;ve run marketplace operations in-house, built the software for it, and carried real P&amp;L.
                 We know what moves the needle, what&apos;s a distraction, and when a channel isn&apos;t worth your margin.
               </p>
+              <div style={{ marginTop: 24, paddingTop: 20, borderTop: `1px solid ${border}` }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: navy, margin: "0 0 8px" }}>
+                  We built our own toolkit — 30+ tools we run every account on:
+                </p>
+                <p style={{ fontSize: 13, color: muted, lineHeight: 1.9, margin: 0 }}>
+                  PPC management &middot; Keyword &amp; market research &middot; Listing &amp; creative &middot;
+                  Launch &amp; inventory planning &middot; Performance analytics
+                </p>
+              </div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {WHY.map(w => (
