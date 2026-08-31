@@ -104,6 +104,22 @@ export default function ForBrands() {
       </Section>
 
       <Section bg={cream}>
+        <Kicker>Track record</Kicker>
+        <h2 style={{ fontSize: "clamp(22px, 3.5vw, 32px)", fontWeight: 800, margin: "0 0 16px" }}>
+          $1.3M+ driven, built and run
+        </h2>
+        <p style={{ fontSize: 16, color: muted, lineHeight: 1.8, margin: "0 0 14px" }}>
+          We scaled Brightworks to $1.3M in revenue in 2025 and built their Shopify storefront from scratch.
+          Current engagements span consumer products, tools, and sporting goods.
+        </p>
+        <p style={{ fontSize: 16, color: muted, lineHeight: 1.8, margin: 0 }}>
+          For the full build — manufacturing, operations, regulatory, traditional retail — we work alongside{" "}
+          <a href="https://www.lyventurestudio.com/" target="_blank" rel="noreferrer" style={{ color: navy, fontWeight: 700 }}>LY Venture Studio</a>.
+          Concept to shelf to marketplace, one team.
+        </p>
+      </Section>
+
+      <Section>
         <Kicker>Who it&apos;s for</Kicker>
         <h2 style={{ fontSize: "clamp(22px, 3.5vw, 32px)", fontWeight: 800, margin: "0 0 24px" }}>
           A good fit if you&apos;re a brand with&hellip;
