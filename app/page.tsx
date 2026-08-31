@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef } from "react";
+import Image from "next/image";
 import ChannelMesh from "./ChannelMesh";
 
 // ── constants ─────────────────────────────────────────────────────────────────
@@ -413,6 +414,27 @@ export default function Home() {
                     <p style={{ fontSize: 13, color: muted, lineHeight: 1.6, margin: 0 }}>{w.b}</p>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ marginTop: 52, paddingTop: 44, borderTop: `1px solid ${border}` }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: navy, textAlign: "center", margin: "0 0 24px" }}>
+              A few of the 30+ tools we run every engagement on
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 18 }}>
+              {[
+                { src: "/account-performance.png", w: 1320, h: 697, alt: "Account Performance dashboard — revenue split, ad and organic KPIs, and placement breakdown", cap: "Account Performance" },
+                { src: "/search-term-dashboard.png", w: 1330, h: 593, alt: "Search Term Dashboard — spend, sales, ACoS, ROAS and weekly spend trend", cap: "Search Term Dashboard" },
+                { src: "/ppc-intent-analysis.png", w: 1418, h: 786, alt: "PPC Intent Analysis — wasted-spend detection and match-type efficiency", cap: "PPC Intent Analysis" },
+              ].map(img => (
+                <figure key={img.src} style={{ margin: 0 }}>
+                  <div style={{ borderRadius: 10, border: `1px solid ${border}`, overflow: "hidden", boxShadow: "0 12px 34px rgba(10,35,51,0.10)" }}>
+                    <Image src={img.src} width={img.w} height={img.h} alt={img.alt}
+                      style={{ width: "100%", height: "auto", display: "block" }} />
+                  </div>
+                  <figcaption style={{ fontSize: 11.5, color: muted, textAlign: "center", margin: "8px 0 0" }}>{img.cap}</figcaption>
+                </figure>
               ))}
             </div>
           </div>
