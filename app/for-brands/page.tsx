@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ChannelMesh from "../ChannelMesh";
 
 const navy = "#0A2333";
 const orange = "#F97316";
@@ -55,8 +56,9 @@ export default function ForBrands() {
         </div>
       </header>
 
-      <section style={{ background: navy, padding: "80px 24px", textAlign: "center" }}>
-        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+      <section style={{ background: navy, padding: "80px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        <ChannelMesh opacity={0.8} />
+        <div style={{ maxWidth: 720, margin: "0 auto", position: "relative", zIndex: 1 }}>
           <span style={{ display: "inline-block", background: orange, color: "#fff", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", padding: "4px 14px", borderRadius: 20, marginBottom: 24 }}>
             For Brands
           </span>
@@ -134,8 +136,9 @@ export default function ForBrands() {
         </div>
       </Section>
 
-      <section style={{ background: navy, padding: "72px 24px", textAlign: "center" }}>
-        <div style={{ maxWidth: 560, margin: "0 auto" }}>
+      <section style={{ background: navy, padding: "72px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        <ChannelMesh opacity={0.4} />
+        <div style={{ maxWidth: 560, margin: "0 auto", position: "relative", zIndex: 1 }}>
           <h2 style={{ fontSize: "clamp(22px, 3.5vw, 32px)", fontWeight: 800, color: "#fff", margin: "0 0 14px" }}>
             Worth a 20-minute call?
           </h2>

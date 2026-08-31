@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef } from "react";
+import ChannelMesh from "./ChannelMesh";
 
 // ── constants ─────────────────────────────────────────────────────────────────
 
@@ -269,8 +270,9 @@ export default function Home() {
       <Nav onContact={scrollToContact} />
 
       {/* Hero */}
-      <section style={{ background: navy, padding: "96px 24px 88px", textAlign: "center" }}>
-        <div style={{ maxWidth: 780, margin: "0 auto" }}>
+      <section style={{ background: navy, padding: "96px 24px 88px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        <ChannelMesh opacity={0.85} />
+        <div style={{ maxWidth: 780, margin: "0 auto", position: "relative", zIndex: 1 }}>
           <span style={{ display: "inline-block", background: orange, color: "#fff", fontSize: 11, fontWeight: 700,
             letterSpacing: "0.1em", textTransform: "uppercase", padding: "4px 14px", borderRadius: 20, marginBottom: 28 }}>
             Wholesale &amp; Multi-Channel Partner
@@ -324,8 +326,9 @@ export default function Home() {
       </section>
 
       {/* How we work */}
-      <section id="how" style={{ padding: "80px 24px", background: navy }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+      <section id="how" style={{ padding: "80px 24px", background: navy, position: "relative", overflow: "hidden" }}>
+        <ChannelMesh opacity={0.5} />
+        <div style={{ maxWidth: 1000, margin: "0 auto", position: "relative", zIndex: 1 }}>
           <Kicker light>How we work</Kicker>
           <h2 style={{ fontSize: "clamp(24px, 3.5vw, 36px)", fontWeight: 800, color: "#fff", margin: "0 0 56px", lineHeight: 1.2, maxWidth: 520 }}>
             You approve the channels. We do everything after that.
@@ -424,8 +427,9 @@ export default function Home() {
       </section>
 
       {/* CTA band */}
-      <section style={{ background: navy, padding: "72px 24px", textAlign: "center" }}>
-        <div style={{ maxWidth: 600, margin: "0 auto" }}>
+      <section style={{ background: navy, padding: "72px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        <ChannelMesh opacity={0.4} />
+        <div style={{ maxWidth: 600, margin: "0 auto", position: "relative", zIndex: 1 }}>
           <h2 style={{ fontSize: "clamp(22px, 3.5vw, 34px)", fontWeight: 800, color: "#fff", margin: "0 0 16px", lineHeight: 1.3 }}>
             Ready to take control of your channels?
           </h2>
