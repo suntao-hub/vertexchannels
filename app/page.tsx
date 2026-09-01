@@ -34,12 +34,12 @@ const SERVICES = [
   {
     d: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
     title: "Managed Amazon Accounts",
-    body: "Keep your own account — we operate it. Seller or Vendor Central run on your behalf: advertising, catalog and A+ content, cases, and day-to-day. Your account, your data, your customers.",
+    body: "Keep your own Seller Central — we operate it. Advertising, catalog and A+ content, pricing, inventory, cases, and buy-box defense, run on your behalf. Your account, your data, your customers.",
   },
   {
     d: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15",
-    title: "Chargeback & Shortage Recovery",
-    body: "Vendor accounts leak 3–8% of revenue to chargebacks, shortage claims, and unrecovered deductions. We audit 18 months, dispute what's recoverable, and fix the operational causes — often paid as a share of what we recover.",
+    title: "FBA Reimbursement Recovery",
+    body: "Amazon owes sellers money constantly — units lost or damaged in FBA, overcharged dimensions and fees, returns never restocked. We audit the account, file the claims, and recover it. Paid as a share of what comes back.",
   },
   {
     d: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
@@ -62,7 +62,7 @@ const REASONS = [
   "They've stepped back from Amazon and want back in without running it",
   "They're strong on Amazon and invisible everywhere else",
   "Excess or aged inventory is bleeding storage fees",
-  "Their Vendor account is leaking margin to chargebacks and unilateral price changes",
+  "Amazon owes them thousands in FBA reimbursements they've never claimed",
 ];
 
 const PHASES = [
@@ -82,13 +82,13 @@ const WORK = [
   {
     name: "Reloading Basic",
     href: "",
-    period: "Current",
+    period: "",
     body: "Marketplace management for reloading and sporting-goods supplies.",
   },
   {
     name: "Orazen",
     href: "https://www.orazeninc.com/",
-    period: "Current",
+    period: "",
     body: "Rebuilding their Amazon and marketplace presence from the ground up.",
   },
 ];
@@ -307,7 +307,7 @@ export default function Home() {
           <p style={{ fontSize: 13, color: "#8CA0B3", margin: "28px 0 0", letterSpacing: "0.01em" }}>
             <strong style={{ color: "#CBD5E1" }}>$1.3M+</strong> client revenue driven
             &nbsp;·&nbsp; Shopify &amp; marketplace builds
-            &nbsp;·&nbsp; Chargeback recovery for Vendor brands
+            &nbsp;·&nbsp; FBA reimbursement recovery
           </p>
         </div>
       </section>
@@ -393,8 +393,9 @@ export default function Home() {
                       ? <a href={w.href} target="_blank" rel="noreferrer" style={{ color: navy }}>{w.name} ↗</a>
                       : w.name}
                   </h3>
-                  <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em",
-                    color: w.period === "Current" ? "#15803D" : muted }}>{w.period}</span>
+                  {w.period && (
+                    <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: muted }}>{w.period}</span>
+                  )}
                 </div>
                 <p style={{ fontSize: 14, color: muted, lineHeight: 1.6, margin: 0 }}>{w.body}</p>
               </div>
