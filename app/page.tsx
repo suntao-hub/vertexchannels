@@ -29,17 +29,17 @@ const SERVICES = [
   {
     d: ["M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 004 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"],
     title: "Multi-Channel Selling",
-    body: "We become your authorized reseller and run Walmart, eBay, Newegg, Amazon, and Woot — listings, pricing, ads, and fulfillment. You approve the channels; we operate them.",
+    body: "We become your authorized reseller on Walmart, eBay, and Newegg — listings, pricing, ads, fulfillment. Whether you're expanding or getting back onto a channel you left, you approve it and we operate it.",
   },
   {
     d: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
-    title: "Managed Marketplace Accounts",
-    body: "Prefer to keep your own account? We operate your Seller or Vendor Central on your behalf — ads, catalog, cases, chargeback and shortage recovery. Your account, your data, your customer relationships.",
+    title: "Managed Amazon Accounts",
+    body: "Keep your own account — we operate it. Seller or Vendor Central run on your behalf: advertising, catalog and A+ content, cases, and day-to-day. Your account, your data, your customers.",
   },
   {
     d: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15",
-    title: "Marketplace Relaunch",
-    body: "Stepped back from Amazon or never got Walmart off the ground? We rebuild the listings, re-establish the accounts, and get the catalog live again.",
+    title: "Chargeback & Shortage Recovery",
+    body: "Vendor accounts leak 3–8% of revenue to chargebacks, shortage claims, and unrecovered deductions. We audit 18 months, dispute what's recoverable, and fix the operational causes — often paid as a share of what we recover.",
   },
   {
     d: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
@@ -47,15 +47,22 @@ const SERVICES = [
     body: "We buy overstock, returns, and discontinued lines outright and sell them through our channels — cash to you now, kept off the channels that matter to your brand.",
   },
   {
+    d: "M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z",
+    title: "Shopify & DTC",
+    body: "We build and run your direct-to-consumer store — design, catalog, checkout, and the marketing that drives it. We scaled one client's store to $1.3M in its first full year.",
+  },
+  {
     d: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
     title: "Brand Protection & MAP",
     body: "Unauthorized sellers and MAP violators fragment your pricing and your brand. As your authorized channel partner, we consolidate control and enforce your policy.",
   },
-  {
-    d: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
-    title: "Listing & Content",
-    body: "Every channel renders your product differently. We build listings — titles, images, A+, attributes — that convert on each one, not a copy-paste from your Amazon page.",
-  },
+];
+
+const REASONS = [
+  "They've stepped back from Amazon and want back in without running it",
+  "They're strong on Amazon and invisible everywhere else",
+  "Excess or aged inventory is bleeding storage fees",
+  "Their Vendor account is leaking margin to chargebacks and unilateral price changes",
 ];
 
 const PHASES = [
@@ -236,7 +243,6 @@ function ContactForm({ formRef }: { formRef: React.RefObject<HTMLDivElement | nu
               <select style={inp} value={form.service} onChange={e => set("service", e.target.value)}>
                 <option value="">Select a service…</option>
                 {SERVICES_LIST.map(s => <option key={s}>{s}</option>)}
-                <option>Excess inventory</option>
                 <option>General inquiry</option>
               </select>
             </div>
@@ -282,10 +288,9 @@ export default function Home() {
             Amazon is one channel.<br /><span style={{ color: orange }}>We run them all.</span>
           </h1>
           <p style={{ fontSize: "clamp(16px, 2vw, 20px)", color: "#CBD5E1", lineHeight: 1.7,
-            margin: "0 auto 40px", maxWidth: 660 }}>
-            Vertex Channels runs your marketplace presence — your Amazon account (Seller or Vendor Central)
-            operated on your behalf, Walmart, eBay, and Newegg run as your authorized reseller, and excess
-            inventory cleared across all of it. You keep control of your brand; we own the operational grind.
+            margin: "0 auto 36px", maxWidth: 640 }}>
+            We operate your Amazon account and run Walmart, eBay, and Newegg as your authorized reseller —
+            new revenue on the channels you&apos;re leaving empty, with nothing added to your team&apos;s plate.
           </p>
           <div className="hero-buttons" style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
             <button onClick={scrollToContact}
@@ -299,6 +304,28 @@ export default function Home() {
               See our services
             </a>
           </div>
+          <p style={{ fontSize: 13, color: "#8CA0B3", margin: "28px 0 0", letterSpacing: "0.01em" }}>
+            <strong style={{ color: "#CBD5E1" }}>$1.3M+</strong> client revenue driven
+            &nbsp;·&nbsp; Shopify &amp; marketplace builds
+            &nbsp;·&nbsp; Chargeback recovery for Vendor brands
+          </p>
+        </div>
+      </section>
+
+      {/* Why brands come to us */}
+      <section style={{ padding: "44px 24px", background: navy, borderTop: "1px solid #1E3A4C" }}>
+        <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+          <p style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: orange, margin: "0 0 18px" }}>
+            Brands come to us when —
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: "12px 32px" }}>
+            {REASONS.map(r => (
+              <div key={r} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                <span style={{ color: orange, fontWeight: 800, flexShrink: 0, lineHeight: 1.5 }}>→</span>
+                <span style={{ fontSize: 14, color: "#CBD5E1", lineHeight: 1.5 }}>{r}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -307,7 +334,7 @@ export default function Home() {
         <div style={{ maxWidth: 1000, margin: "0 auto" }}>
           <Kicker>What we do</Kicker>
           <h2 style={{ fontSize: "clamp(24px, 3.5vw, 36px)", fontWeight: 800, margin: "0 0 48px", lineHeight: 1.25, maxWidth: 460 }}>
-            One partner for every channel Amazon isn&apos;t
+            One partner for every marketplace you sell on
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 4 }}>
             {SERVICES.map((s, i) => (
@@ -389,9 +416,12 @@ export default function Home() {
                 Most brands pour everything into Amazon and let Walmart, eBay, and Newegg sit idle — while excess
                 inventory racks up storage fees and unauthorized sellers fragment the price.
               </p>
-              <p style={{ fontSize: 16, color: muted, lineHeight: 1.75 }}>
+              <p style={{ fontSize: 16, color: muted, lineHeight: 1.75, margin: "0 0 18px" }}>
                 We&apos;ve run marketplace operations in-house, built the software for it, and carried real P&amp;L.
                 We know what moves the needle, what&apos;s a distraction, and when a channel isn&apos;t worth your margin.
+              </p>
+              <p style={{ fontSize: 16, color: navy, fontWeight: 600, lineHeight: 1.7 }}>
+                We run a small book of brands, deeply — not a roster of logos. You get an operator, not an account manager.
               </p>
               <div style={{ marginTop: 24, paddingTop: 20, borderTop: `1px solid ${border}` }}>
                 <p style={{ fontSize: 13, fontWeight: 700, color: navy, margin: "0 0 8px" }}>
