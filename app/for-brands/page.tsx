@@ -66,8 +66,8 @@ export default function ForBrands() {
             You own the brand.<br /><span style={{ color: orange }}>We run the channels.</span>
           </h1>
           <p style={{ fontSize: 18, color: "#CBD5E1", lineHeight: 1.7, margin: 0 }}>
-            Vertex Channels operates your Amazon Seller Central on your behalf, runs Walmart, eBay, and Newegg
-            as your authorized reseller, and moves the excess inventory that&apos;s costing you storage fees.
+            Vertex Channels runs Walmart, eBay, and Newegg as your authorized reseller, operates your Amazon
+            Seller Central on your behalf, and moves the excess inventory that&apos;s costing you storage fees.
             You keep control of your brand; we work on a share of the revenue we add.
           </p>
         </div>

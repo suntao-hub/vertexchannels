@@ -1,6 +1,5 @@
 "use client";
 import { useState, useRef } from "react";
-import Image from "next/image";
 import ChannelMesh from "./ChannelMesh";
 
 // ── constants ─────────────────────────────────────────────────────────────────
@@ -282,15 +281,16 @@ export default function Home() {
         <div style={{ maxWidth: 780, margin: "0 auto", position: "relative", zIndex: 1 }}>
           <span style={{ display: "inline-block", background: orange, color: "#fff", fontSize: 11, fontWeight: 700,
             letterSpacing: "0.1em", textTransform: "uppercase", padding: "4px 14px", borderRadius: 20, marginBottom: 28 }}>
-            Wholesale &amp; Multi-Channel Partner
+            For tools &amp; automotive brands
           </span>
           <h1 style={{ fontSize: "clamp(32px, 5.5vw, 56px)", fontWeight: 800, color: "#fff", lineHeight: 1.15, margin: "0 0 24px" }}>
-            Amazon is one channel.<br /><span style={{ color: orange }}>We run them all.</span>
+            We run Walmart, eBay &amp; Newegg<br /><span style={{ color: orange }}>for your brand.</span>
           </h1>
           <p style={{ fontSize: "clamp(16px, 2vw, 20px)", color: "#CBD5E1", lineHeight: 1.7,
             margin: "0 auto 36px", maxWidth: 640 }}>
-            We operate your Amazon account and run Walmart, eBay, and Newegg as your authorized reseller —
-            new revenue on the channels you&apos;re leaving empty, with nothing added to your team&apos;s plate.
+            Vertex Channels is your authorized reseller on the marketplaces beyond Amazon — listings, pricing,
+            ads, and fulfillment, all operated for you. We work with tools, automotive, and hardware brands,
+            on a share of the revenue we add.
           </p>
           <div className="hero-buttons" style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
             <button onClick={scrollToContact}
@@ -306,8 +306,8 @@ export default function Home() {
           </div>
           <p style={{ fontSize: 13, color: "#8CA0B3", margin: "28px 0 0", letterSpacing: "0.01em" }}>
             <strong style={{ color: "#CBD5E1" }}>$1.3M+</strong> client revenue driven
-            &nbsp;·&nbsp; Shopify &amp; marketplace builds
-            &nbsp;·&nbsp; FBA reimbursement recovery
+            &nbsp;·&nbsp; Rev-share, not retainer
+            &nbsp;·&nbsp; We buy excess inventory outright
           </p>
         </div>
       </section>
@@ -334,7 +334,7 @@ export default function Home() {
         <div style={{ maxWidth: 1000, margin: "0 auto" }}>
           <Kicker>What we do</Kicker>
           <h2 style={{ fontSize: "clamp(24px, 3.5vw, 36px)", fontWeight: 800, margin: "0 0 48px", lineHeight: 1.25, maxWidth: 460 }}>
-            One partner for every marketplace you sell on
+            One team for your whole channel operation
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 4 }}>
             {SERVICES.map((s, i) => (
@@ -382,7 +382,7 @@ export default function Home() {
           </h2>
           <p style={{ fontSize: 16, color: muted, lineHeight: 1.7, margin: "0 0 40px", maxWidth: 560 }}>
             $1.3M+ in client revenue driven, Shopify and marketplace builds from scratch, and active
-            engagements across consumer products, tools, and sporting goods.
+            engagements with tools, automotive, and sporting-goods brands.
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {WORK.map(w => (
@@ -413,16 +413,16 @@ export default function Home() {
               <h2 style={{ fontSize: "clamp(24px, 3vw, 34px)", fontWeight: 800, margin: "0 0 20px", lineHeight: 1.3 }}>
                 We operate. We don&apos;t send reports.
               </h2>
+              <p style={{ fontSize: 16, color: navy, fontWeight: 600, lineHeight: 1.7, margin: "0 0 18px" }}>
+                We run a small book of brands, deeply — not a roster of logos. You get an operator, not an account manager.
+              </p>
               <p style={{ fontSize: 16, color: muted, lineHeight: 1.75, margin: "0 0 18px" }}>
                 Most brands pour everything into Amazon and let Walmart, eBay, and Newegg sit idle — while excess
                 inventory racks up storage fees and unauthorized sellers fragment the price.
               </p>
-              <p style={{ fontSize: 16, color: muted, lineHeight: 1.75, margin: "0 0 18px" }}>
+              <p style={{ fontSize: 16, color: muted, lineHeight: 1.75, margin: 0 }}>
                 We&apos;ve run marketplace operations in-house, built the software for it, and carried real P&amp;L.
                 We know what moves the needle, what&apos;s a distraction, and when a channel isn&apos;t worth your margin.
-              </p>
-              <p style={{ fontSize: 16, color: navy, fontWeight: 600, lineHeight: 1.7 }}>
-                We run a small book of brands, deeply — not a roster of logos. You get an operator, not an account manager.
               </p>
               <div style={{ marginTop: 24, paddingTop: 20, borderTop: `1px solid ${border}` }}>
                 <p style={{ fontSize: 13, fontWeight: 700, color: navy, margin: "0 0 8px" }}>
@@ -445,27 +445,6 @@ export default function Home() {
                     <p style={{ fontSize: 13, color: muted, lineHeight: 1.6, margin: 0 }}>{w.b}</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ marginTop: 52, paddingTop: 44, borderTop: `1px solid ${border}` }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: navy, textAlign: "center", margin: "0 0 24px" }}>
-              A few of the 30+ tools we run every engagement on
-            </p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 18 }}>
-              {[
-                { src: "/account-performance.png", alt: "Account Performance dashboard — revenue split and ad/organic KPIs", cap: "Account Performance" },
-                { src: "/search-term-dashboard.png", alt: "Search Term Dashboard — spend, sales, ACoS, ROAS and weekly spend trend", cap: "Search Term Dashboard" },
-                { src: "/ppc-intent-analysis.png", alt: "PPC Intent Analysis — wasted-spend detection and match-type efficiency", cap: "PPC Intent Analysis" },
-              ].map(img => (
-                <figure key={img.src} style={{ margin: 0 }}>
-                  <div style={{ borderRadius: 10, border: `1px solid ${border}`, overflow: "hidden", boxShadow: "0 12px 34px rgba(10,35,51,0.10)" }}>
-                    <Image src={img.src} width={1300} height={560} alt={img.alt}
-                      style={{ width: "100%", height: "auto", display: "block" }} />
-                  </div>
-                  <figcaption style={{ fontSize: 11.5, color: muted, textAlign: "center", margin: "8px 0 0" }}>{img.cap}</figcaption>
-                </figure>
               ))}
             </div>
           </div>
