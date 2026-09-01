@@ -3,6 +3,7 @@
 import { useId } from "react";
 
 const orange = "#F97316";
+const navy = "#0A2333";
 
 const NODES: [number, number, number][] = [
   // x, y, kind: 0 dim · 1 bright · 2 orange accent
@@ -19,6 +20,7 @@ const EDGES = [
 
 export default function ChannelMesh({ opacity = 1 }: { opacity?: number }) {
   const glow = useId();
+  const veil = useId();
   return (
     <svg viewBox="0 0 720 460" preserveAspectRatio="xMidYMid slice" aria-hidden
       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity, pointerEvents: "none" }}>
@@ -26,6 +28,12 @@ export default function ChannelMesh({ opacity = 1 }: { opacity?: number }) {
         <radialGradient id={glow} cx="72%" cy="24%" r="55%">
           <stop offset="0%" stopColor={orange} stopOpacity="0.16" />
           <stop offset="100%" stopColor={orange} stopOpacity="0" />
+        </radialGradient>
+        {/* keeps nodes/lines from colliding with centered hero text */}
+        <radialGradient id={veil} cx="50%" cy="47%" r="62%">
+          <stop offset="0%" stopColor={navy} stopOpacity="0.78" />
+          <stop offset="52%" stopColor={navy} stopOpacity="0.34" />
+          <stop offset="100%" stopColor={navy} stopOpacity="0" />
         </radialGradient>
       </defs>
       <rect width="720" height="460" fill={`url(#${glow})`} />
@@ -38,8 +46,9 @@ export default function ChannelMesh({ opacity = 1 }: { opacity?: number }) {
         <circle key={i} cx={x} cy={y}
           r={kind === 2 ? 5 : kind === 1 ? 4 : 3}
           fill={kind === 2 ? orange : "#fff"}
-          fillOpacity={kind === 2 ? 0.9 : kind === 1 ? 0.35 : 0.18} />
+          fillOpacity={kind === 2 ? 0.85 : kind === 1 ? 0.35 : 0.18} />
       ))}
+      <rect width="720" height="460" fill={`url(#${veil})`} />
     </svg>
   );
 }

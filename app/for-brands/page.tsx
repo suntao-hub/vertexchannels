@@ -19,7 +19,7 @@ const STEPS = [
 ];
 
 const FIT = [
-  "$1.5M–15M/yr on Amazon, thin or no presence on Walmart / eBay / Newegg",
+  "An established brand with real volume on Amazon and little or nothing on Walmart, eBay, or Newegg",
   "Tools, hardware, automotive accessories, garage & shop equipment, material handling",
   "MAP policy you want enforced, or unauthorized sellers you want cleaned up",
   "Excess, aged, or discontinued inventory you'd rather turn into cash than storage fees",
