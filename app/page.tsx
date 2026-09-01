@@ -43,7 +43,7 @@ const SERVICES = [
   {
     d: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
     title: "Excess Inventory Recovery",
-    body: "We list your overstock, returns, and end-of-life stock on clearance channels like Woot and eBay. When an order sells, you ship it direct and we send the label — found revenue on inventory that was only costing you storage, with no wholesale discount to take and nothing dumped on the channels that matter to your brand.",
+    body: "We list your overstock, returns, and end-of-life stock on the right clearance channels. When an order sells, you ship it direct and we send the label — found revenue on inventory that was only costing you storage, with no wholesale discount to take and nothing dumped on the channels that matter to your brand.",
   },
   {
     d: "M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z",

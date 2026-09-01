@@ -31,7 +31,7 @@ Circling back on opening a wholesale account for {{brand}}.
 What we bring, briefly:
 - Walmart, eBay, and Newegg run end to end — listings, pricing, ads, fulfillment
 - MAP monitoring and unauthorized-seller cleanup across marketplaces
-- A path to move aged or excess inventory across those channels instead of discounting on Amazon
+- Aged or excess stock cleared on the right channels — we list it, you ship each order as it sells, no wholesale write-down
 
 More on how it works: {{onepager}}
 
@@ -45,7 +45,7 @@ Happy to jump on a short call if that's easier — what works for you?
 
 I won't keep crowding your inbox — this is my last note for now.
 
-If expanding {{brand}} beyond its current channels (or clearing through excess stock) is worth a conversation down the road, just reply and I'll pick it back up.
+If expanding {{brand}} beyond its current channels (or clearing excess stock without discounting it on Amazon) is worth a conversation down the road, just reply and I'll pick it back up.
 
 Thanks either way,
 {{yourName}}

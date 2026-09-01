@@ -59,44 +59,51 @@ export function unitEconomics(i: UnitEconInput) {
   return { netProfit, margin, roi, referral, fbaFee };
 }
 
-// ─── Excess-inventory recovery scenario ──────────────────────────────────────
-// Compare "sell to a liquidator now" against "run a promo across our channels".
+// ─── Excess-inventory consignment scenario ───────────────────────────────────
+// Early-stage model: Vertex Channels lists the brand's excess on the right
+// clearance channels; the brand keeps the stock and ships each order direct as
+// it sells; VC takes a commission on the proceeds.
+// No lot purchase, no capital outlay. Compares "consign with us" against the
+// brand doing nothing (keeps paying to store it, recovers $0).
 
 const WEEKS_PER_MONTH = 4.345;
 
 export interface ExcessInput {
   unitsOnHand: number;
-  unitCost: number; // brand/client cost basis per unit
+  unitCost: number; // brand cost basis per unit
   monthlyHoldingCostPerUnit: number; // storage / capital carrying cost
-  liquidationPricePerUnit: number; // net offer from a liquidator today
-  promoPricePerUnit: number; // expected gross price across our channels
-  promoSelloutWeeks: number; // time to clear the stock via promo
-  promoChannelFeeRate: number; // blended marketplace fee, e.g. 0.15
+  clearancePricePerUnit: number; // expected gross sale price on clearance channels
+  selloutWeeks: number; // time to clear the stock
+  channelFeeRate: number; // blended marketplace fee, e.g. 0.15
+  vcCommissionRate: number; // VC's cut of post-fee proceeds, e.g. 0.20
 }
 
 export function excessScenario(i: ExcessInput) {
   const costBasis = i.unitsOnHand * i.unitCost;
 
-  const liquidateNow = i.unitsOnHand * i.liquidationPricePerUnit;
-
-  const holdingCost =
+  // holding cost the brand keeps paying if it does nothing, over the window it
+  // would otherwise have cleared the stock (avg on-hand halves as it sells)
+  const holdingDuringSellout =
     i.unitsOnHand *
     i.monthlyHoldingCostPerUnit *
-    (i.promoSelloutWeeks / WEEKS_PER_MONTH) *
-    0.5; // avg units on hand halves as the promo sells through
-  const promoGross = i.unitsOnHand * i.promoPricePerUnit;
-  const promoFees = promoGross * i.promoChannelFeeRate;
-  const promoNet = promoGross - promoFees - holdingCost;
+    (i.selloutWeeks / WEEKS_PER_MONTH) *
+    0.5;
+
+  const gross = i.unitsOnHand * i.clearancePricePerUnit;
+  const channelFees = gross * i.channelFeeRate;
+  const afterFees = gross - channelFees;
+  const vcCommission = afterFees * i.vcCommissionRate;
+  const brandNet = afterFees - vcCommission; // found revenue to the brand
 
   return {
     costBasis,
-    liquidateNow,
-    liquidateRecoveryPct: costBasis > 0 ? liquidateNow / costBasis : null,
-    promoGross,
-    promoFees,
-    holdingCost,
-    promoNet,
-    promoRecoveryPct: costBasis > 0 ? promoNet / costBasis : null,
-    advantage: promoNet - liquidateNow, // >0 == promo wins
+    gross,
+    channelFees,
+    vcCommission,
+    brandNet,
+    brandRecoveryPct: costBasis > 0 ? brandNet / costBasis : null,
+    holdingDuringSellout,
+    // vs. doing nothing: brand nets this AND stops the carrying cost
+    brandAdvantage: brandNet + holdingDuringSellout,
   };
 }

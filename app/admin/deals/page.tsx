@@ -186,55 +186,57 @@ const fmtN = (n: number | null | undefined, d = 0) =>
 function ExcessCalculator() {
   const [i, setI] = useState({
     unitsOnHand: 500, unitCost: 8, monthlyHoldingCostPerUnit: 0.6,
-    liquidationPricePerUnit: 4, promoPricePerUnit: 14,
-    promoSelloutWeeks: 8, promoChannelFeeRate: 0.15,
+    clearancePricePerUnit: 12, selloutWeeks: 8,
+    channelFeeRate: 0.15, vcCommissionRate: 0.2,
   });
   const set = (k: keyof typeof i) => (v: number | null) => setI((s) => ({ ...s, [k]: v ?? 0 }));
 
   const r = useMemo(() => {
     const costBasis = i.unitsOnHand * i.unitCost;
-    const liquidateNow = i.unitsOnHand * i.liquidationPricePerUnit;
-    const holdingCost = i.unitsOnHand * i.monthlyHoldingCostPerUnit * (i.promoSelloutWeeks / 4.345) * 0.5;
-    const promoGross = i.unitsOnHand * i.promoPricePerUnit;
-    const promoFees = promoGross * i.promoChannelFeeRate;
-    const promoNet = promoGross - promoFees - holdingCost;
+    const holding = i.unitsOnHand * i.monthlyHoldingCostPerUnit * (i.selloutWeeks / 4.345) * 0.5;
+    const gross = i.unitsOnHand * i.clearancePricePerUnit;
+    const channelFees = gross * i.channelFeeRate;
+    const afterFees = gross - channelFees;
+    const vcCommission = afterFees * i.vcCommissionRate;
+    const brandNet = afterFees - vcCommission;
     return {
-      costBasis, liquidateNow, promoNet, holdingCost, promoFees,
-      liqPct: costBasis ? liquidateNow / costBasis : 0,
-      promoPct: costBasis ? promoNet / costBasis : 0,
-      advantage: promoNet - liquidateNow,
+      costBasis, gross, channelFees, vcCommission, brandNet, holding,
+      brandPct: costBasis ? brandNet / costBasis : 0,
+      brandAdvantage: brandNet + holding,
     };
   }, [i]);
 
   return (
     <div style={{ border: `1px solid ${border}`, borderRadius: 10, padding: 14, marginTop: 12 }}>
-      <p style={{ fontSize: 13, fontWeight: 700, margin: "0 0 10px", color: navy }}>
-        Excess-inventory recovery
+      <p style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px", color: navy }}>
+        Excess-inventory consignment
+      </p>
+      <p style={{ fontSize: 11, color: muted, margin: "0 0 10px" }}>
+        We list it, the brand ships each order as it sells, we take a commission — no lot purchase.
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(130px,1fr))", gap: 10 }}>
         <NumField label="Units on hand" value={i.unitsOnHand} onCommit={set("unitsOnHand")} />
-        <NumField label="Unit cost" prefix="$" value={i.unitCost} onCommit={set("unitCost")} />
+        <NumField label="Brand unit cost" prefix="$" value={i.unitCost} onCommit={set("unitCost")} />
         <NumField label="Holding $/unit/mo" prefix="$" value={i.monthlyHoldingCostPerUnit} onCommit={set("monthlyHoldingCostPerUnit")} />
-        <NumField label="Liquidator $/unit" prefix="$" value={i.liquidationPricePerUnit} onCommit={set("liquidationPricePerUnit")} />
-        <NumField label="Promo $/unit (gross)" prefix="$" value={i.promoPricePerUnit} onCommit={set("promoPricePerUnit")} />
-        <NumField label="Sell-through wks" value={i.promoSelloutWeeks} onCommit={set("promoSelloutWeeks")} />
-        <NumField label="Channel fee rate" value={i.promoChannelFeeRate} step="0.01" onCommit={set("promoChannelFeeRate")} />
+        <NumField label="Clearance $/unit (gross)" prefix="$" value={i.clearancePricePerUnit} onCommit={set("clearancePricePerUnit")} />
+        <NumField label="Sell-through wks" value={i.selloutWeeks} onCommit={set("selloutWeeks")} />
+        <NumField label="Channel fee rate" value={i.channelFeeRate} step="0.01" onCommit={set("channelFeeRate")} />
+        <NumField label="Our commission" value={i.vcCommissionRate} step="0.01" onCommit={set("vcCommissionRate")} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 12 }}>
-        <div style={{ background: "#FEE2E2", borderRadius: 8, padding: 10 }}>
-          <p style={{ fontSize: 11, color: "#991B1B", fontWeight: 700, margin: 0 }}>LIQUIDATE NOW</p>
-          <p style={{ fontSize: 18, fontWeight: 800, margin: "4px 0 0", color: navy }}>{fmt$(r.liquidateNow)}</p>
-          <p style={{ fontSize: 11, color: muted, margin: "2px 0 0" }}>{(r.liqPct * 100).toFixed(0)}% of cost basis</p>
-        </div>
         <div style={{ background: "#DCFCE7", borderRadius: 8, padding: 10 }}>
-          <p style={{ fontSize: 11, color: "#15803D", fontWeight: 700, margin: 0 }}>PROMO ACROSS CHANNELS</p>
-          <p style={{ fontSize: 18, fontWeight: 800, margin: "4px 0 0", color: navy }}>{fmt$(r.promoNet)}</p>
-          <p style={{ fontSize: 11, color: muted, margin: "2px 0 0" }}>{(r.promoPct * 100).toFixed(0)}% of cost basis · net of {fmt$(r.promoFees)} fees + {fmt$(r.holdingCost)} holding</p>
+          <p style={{ fontSize: 11, color: "#15803D", fontWeight: 700, margin: 0 }}>BRAND NETS</p>
+          <p style={{ fontSize: 18, fontWeight: 800, margin: "4px 0 0", color: navy }}>{fmt$(r.brandNet)}</p>
+          <p style={{ fontSize: 11, color: muted, margin: "2px 0 0" }}>{(r.brandPct * 100).toFixed(0)}% of cost basis · net of {fmt$(r.channelFees)} fees + our cut</p>
+        </div>
+        <div style={{ background: "#FEF3C7", borderRadius: 8, padding: 10 }}>
+          <p style={{ fontSize: 11, color: "#92400E", fontWeight: 700, margin: 0 }}>WE EARN</p>
+          <p style={{ fontSize: 18, fontWeight: 800, margin: "4px 0 0", color: navy }}>{fmt$(r.vcCommission)}</p>
+          <p style={{ fontSize: 11, color: muted, margin: "2px 0 0" }}>on {fmt$(r.gross)} gross cleared</p>
         </div>
       </div>
-      <p style={{ fontSize: 12, margin: "10px 0 0", color: r.advantage >= 0 ? green : red, fontWeight: 700 }}>
-        {r.advantage >= 0 ? "Promo recovers " : "Liquidating recovers "}
-        {fmt$(Math.abs(r.advantage))} {r.advantage >= 0 ? "more" : "more"} than the alternative.
+      <p style={{ fontSize: 12, margin: "10px 0 0", color: green, fontWeight: 700 }}>
+        Brand recovers {fmt$(r.brandAdvantage)} vs. doing nothing — {fmt$(r.brandNet)} found revenue plus {fmt$(r.holding)} of storage cost it stops paying.
       </p>
     </div>
   );

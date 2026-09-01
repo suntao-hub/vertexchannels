@@ -101,9 +101,9 @@ export default function ForBrands() {
           front of you after the first call.
         </p>
         <p style={{ fontSize: 16, color: muted, lineHeight: 1.8, margin: 0 }}>
-          For excess inventory, we list your overstock and end-of-life stock on clearance channels like
-          Woot — you ship each order direct as it sells and we send the label. Found revenue on stock that
-          was only costing you storage, with no wholesale discount to take.
+          For excess inventory, we list your overstock and end-of-life stock on the right clearance
+          channels — you ship each order direct as it sells and we send the label. Found revenue on stock
+          that was only costing you storage, with no wholesale discount to take.
         </p>
       </Section>
 
