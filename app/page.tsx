@@ -43,7 +43,7 @@ const SERVICES = [
   {
     d: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
     title: "Excess Inventory Recovery",
-    body: "We buy overstock, returns, and discontinued lines outright and sell them through our channels — cash to you now, kept off the channels that matter to your brand.",
+    body: "We list your overstock, returns, and end-of-life stock on clearance channels like Woot and eBay. When an order sells, you ship it direct and we send the label — found revenue on inventory that was only costing you storage, with no wholesale discount to take and nothing dumped on the channels that matter to your brand.",
   },
   {
     d: "M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z",
@@ -100,8 +100,8 @@ const WHY = [
   },
   {
     d: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
-    t: "We'll take the inventory",
-    b: "When it makes sense, we buy the lot and carry the risk — so stuck stock becomes cash instead of a line item.",
+    t: "We clear your excess stock",
+    b: "We list your overstock on clearance channels and you ship direct as it sells — storage-fee liability turned into found revenue, no wholesale write-down.",
   },
   {
     d: "M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9",
@@ -307,8 +307,21 @@ export default function Home() {
           <p style={{ fontSize: 13, color: "#8CA0B3", margin: "28px 0 0", letterSpacing: "0.01em" }}>
             <strong style={{ color: "#CBD5E1" }}>$1.3M+</strong> client revenue driven
             &nbsp;·&nbsp; Rev-share, not retainer
-            &nbsp;·&nbsp; We buy excess inventory outright
+            &nbsp;·&nbsp; We clear your excess inventory
           </p>
+        </div>
+      </section>
+
+      {/* Already on Amazon */}
+      <section style={{ padding: "34px 24px", background: cream, borderBottom: `1px solid ${border}` }}>
+        <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
+          <p style={{ fontSize: 15, lineHeight: 1.65, margin: "0 0 8px", color: navy }}>
+            <strong>Already selling on Amazon?</strong> We&apos;ll run that too — your Seller Central operated
+            on your behalf, plus the FBA reimbursements Amazon owes you and never paid.
+          </p>
+          <a href="/for-brands" style={{ fontSize: 14, fontWeight: 700, color: orange }}>
+            How managed Amazon works →
+          </a>
         </div>
       </section>
 

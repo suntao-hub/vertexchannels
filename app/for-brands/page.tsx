@@ -22,7 +22,7 @@ const FIT = [
   "An established brand with real volume on Amazon and little or nothing on Walmart, eBay, or Newegg",
   "Tools, hardware, automotive accessories, garage & shop equipment, material handling",
   "MAP policy you want enforced, or unauthorized sellers you want cleaned up",
-  "Excess, aged, or discontinued inventory you'd rather turn into cash than storage fees",
+  "Excess, aged, or discontinued inventory that's only costing you storage fees",
 ];
 
 function Section({ id, bg, children }: { id?: string; bg?: string; children: React.ReactNode }) {
@@ -101,8 +101,9 @@ export default function ForBrands() {
           front of you after the first call.
         </p>
         <p style={{ fontSize: 16, color: muted, lineHeight: 1.8, margin: 0 }}>
-          For excess inventory, we&apos;ll buy the lot outright at a fair price and sell it through
-          across our channels — you get cash now instead of paying to store it.
+          For excess inventory, we list your overstock and end-of-life stock on clearance channels like
+          Woot — you ship each order direct as it sells and we send the label. Found revenue on stock that
+          was only costing you storage, with no wholesale discount to take.
         </p>
       </Section>
 
