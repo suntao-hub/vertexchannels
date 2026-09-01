@@ -95,9 +95,10 @@ export default function ForBrands() {
           Rev-share, not a retainer
         </h2>
         <p style={{ fontSize: 16, color: muted, lineHeight: 1.8, margin: "0 0 14px" }}>
-          We take a share of the incremental revenue we generate on the channels we run for you —
-          typically 15–25% of net, plus a small per-channel setup fee. If a channel isn&apos;t earning
-          its margin, we tell you and we shut it off.
+          We work on a share of the incremental revenue we generate on the channels we run for you —
+          no retainer, no long lock-in. If a channel isn&apos;t earning its margin, we tell you and we
+          shut it off. Exact terms depend on the channels and the scope; we&apos;ll put a number in
+          front of you after the first call.
         </p>
         <p style={{ fontSize: 16, color: muted, lineHeight: 1.8, margin: 0 }}>
           For excess inventory, we&apos;ll buy the lot outright at a fair price and sell it through
