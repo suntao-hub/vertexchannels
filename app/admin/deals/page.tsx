@@ -242,6 +242,79 @@ function ExcessCalculator() {
   );
 }
 
+// ─── Storefront (vertexbuy.com) fit screen ─────────────────────────────────
+// Quick screen for a consignment SKU: worth listing on vertexbuy.com, or
+// better routed to eBay/Woot/other clearance channels? Adapted from Drop Ship
+// Lifestyle's Module 1 niche-selection filter (price/weight, buyer profile,
+// brand loyalty). Doesn't change the commission split above — it only decides
+// which SKUs are worth the listing/SEO effort.
+
+function DslFitScreen() {
+  const [salePrice, setSalePrice] = useState<number | null>(null);
+  const [largeFreight, setLargeFreight] = useState(false);
+  const [upperMiddleClass, setUpperMiddleClass] = useState<Tri>(null);
+  const [dominantBrand, setDominantBrand] = useState<Tri>(null);
+  const [excludedCategory, setExcludedCategory] = useState(false);
+
+  const priceThreshold = largeFreight ? 1000 : 200;
+  const pricePass = salePrice != null && salePrice >= priceThreshold;
+  const unknown = upperMiddleClass === null || dominantBrand === null;
+  const fit = pricePass && upperMiddleClass === true && dominantBrand === false && !excludedCategory;
+
+  const verdict = excludedCategory
+    ? { label: "EXCLUDED CATEGORY", color: red,
+        note: "Regulated, custom-only, or consumable — not a fit for a storefront listing." }
+    : unknown
+    ? { label: "NEEDS MORE INFO", color: muted,
+        note: "Answer both toggles below to get a verdict." }
+    : fit
+    ? { label: "GOOD FIT — LIST ON VERTEXBUY.COM", color: green,
+        note: "High-ticket enough and no dominant brand to compete against — worth the listing/SEO effort." }
+    : { label: "ROUTE ELSEWHERE (eBay / Woot / other)", color: red,
+        note: !pricePass
+          ? `Below the $${priceThreshold} threshold for ${largeFreight ? "a freight item" : "a parcel item"} — not worth the storefront effort.`
+          : dominantBrand === true
+          ? "A dominant brand controls this niche — can't compete for search/ranking against it."
+          : "Doesn't fit the upper-middle-class buyer profile a storefront listing needs." };
+
+  return (
+    <div style={{ border: `1px solid ${border}`, borderRadius: 10, padding: 14, marginTop: 12 }}>
+      <p style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px", color: navy }}>
+        Storefront fit (vertexbuy.com)
+      </p>
+      <p style={{ fontSize: 11, color: muted, margin: "0 0 10px" }}>
+        Screens a consignment SKU against Drop Ship Lifestyle&apos;s niche-selection filter — price/weight,
+        buyer profile, brand loyalty.
+      </p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 10, marginBottom: 10 }}>
+        <NumField label="Sale price" prefix="$" value={salePrice} onCommit={setSalePrice} />
+        <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: muted, marginTop: 18 }}>
+          <input type="checkbox" checked={largeFreight} onChange={(e) => setLargeFreight(e.target.checked)} />
+          Large/heavy (freight, not parcel)
+        </label>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+          <span style={{ fontSize: 12, color: navy }}>Appeals to upper-middle-class buyers?</span>
+          <TriToggle value={upperMiddleClass} onChange={setUpperMiddleClass} />
+        </div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+          <span style={{ fontSize: 12, color: navy }}>Is there a dominant brand shoppers default to?</span>
+          <TriToggle value={dominantBrand} onChange={setDominantBrand} />
+        </div>
+        <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: muted }}>
+          <input type="checkbox" checked={excludedCategory} onChange={(e) => setExcludedCategory(e.target.checked)} />
+          Regulated, custom-only, or consumable category
+        </label>
+      </div>
+      <div style={{ background: `${verdict.color}1A`, borderRadius: 8, padding: 10 }}>
+        <p style={{ fontSize: 12, fontWeight: 800, color: verdict.color, margin: 0 }}>{verdict.label}</p>
+        <p style={{ fontSize: 11, color: muted, margin: "4px 0 0" }}>{verdict.note}</p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Product card ────────────────────────────────────────────────────────────
 
 const SNAPSHOT_TOGGLES: [keyof Product, string][] = [
@@ -449,6 +522,7 @@ function Computed({ product, d }: { product: Product; d: ScoreDetail }) {
       ))}
 
       <ExcessCalculator />
+      <DslFitScreen />
     </div>
   );
 }
