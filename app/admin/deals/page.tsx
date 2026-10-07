@@ -595,9 +595,9 @@ function Computed({ product, d }: { product: Product; d: ScoreDetail }) {
 
 // ─── Detail panel ────────────────────────────────────────────────────────────
 
-function ProspectDetail({ prospect, templates, token, keepaOn, onUpdate, onReload, onDelete }: {
+function ProspectDetail({ prospect, templates, token, keepaOn, onUpdate, onReload, onDelete, onClose }: {
   prospect: Prospect; templates: EmailTemplate[]; token: string; keepaOn: boolean;
-  onUpdate: (p: Prospect) => void; onReload: () => Promise<void>; onDelete: () => void;
+  onUpdate: (p: Prospect) => void; onReload: () => Promise<void>; onDelete: () => void; onClose: () => void;
 }) {
   const [notes, setNotes] = useState(prospect.notes);
   const [newAsin, setNewAsin] = useState("");
@@ -665,7 +665,13 @@ function ProspectDetail({ prospect, templates, token, keepaOn, onUpdate, onReloa
           onBlur={(e) => { if (e.target.value !== prospect.brandName) patch({ brandName: e.target.value }); }}
           style={{ fontSize: 17, fontWeight: 800, color: navy, border: "none", outline: "none", width: "70%", fontFamily: "inherit" }}
         />
-        <button onClick={onDelete} style={{ background: "none", border: "none", color: red, cursor: "pointer", fontSize: 13 }}>Delete</button>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 14 }}>
+          <button onClick={onDelete} style={{ background: "none", border: "none", color: red, cursor: "pointer", fontSize: 13 }}>Delete</button>
+          <button onClick={onClose} aria-label="Close panel" title="Close"
+            style={{ background: "#F3F4F6", border: "none", color: muted, cursor: "pointer", fontSize: 16, lineHeight: 1, width: 28, height: 28, borderRadius: 6 }}>
+            ✕
+          </button>
+        </span>
       </div>
 
       {/* Stage */}
@@ -961,7 +967,7 @@ export default function DealDeskPage() {
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                 <thead>
                   <tr style={{ background: "#F9FAFB", borderBottom: `1px solid ${border}` }}>
-                    {["#", "Brand", "Channels", "Stage", "Products", "Best"].map((h) => (
+                    {["#", "Brand", "Channels", "Stage", ...(selected ? [] : ["Products"]), "Best"].map((h) => (
                       <th key={h} style={{ padding: "9px 12px", textAlign: "left", fontSize: 11, color: muted, fontWeight: 700 }}>{h}</th>
                     ))}
                   </tr>
@@ -986,7 +992,7 @@ export default function DealDeskPage() {
                         </td>
                         <td style={{ padding: "9px 12px" }}><GapPills p={p} /></td>
                         <td style={{ padding: "9px 12px", color: muted }}>{STAGE_LABEL[p.stage] ?? p.stage}</td>
-                        <td style={{ padding: "9px 12px", color: muted }}>{p.products.length}</td>
+                        {!selected && <td style={{ padding: "9px 12px", color: muted }}>{p.products.length}</td>}
                         <td style={{ padding: "9px 12px", fontWeight: 700, color: bs >= 76 ? green : bs >= 66 ? "#A16207" : bs >= 0 ? red : muted }}>
                           {bs >= 0 ? `${bs}` : "—"}
                         </td>
@@ -1004,6 +1010,7 @@ export default function DealDeskPage() {
               prospect={selected} templates={templates} token={token} keepaOn={keepaOn}
               onUpdate={(np) => setProspects((ps) => ps.map((x) => x.id === np.id ? np : x))}
               onReload={reloadSilent}
+              onClose={() => setSelectedId(null)}
               onDelete={async () => {
                 if (!confirm(`Delete ${selected.brandName}?`)) return;
                 await fetch(`/api/admin/deals/${selected.id}`, { method: "DELETE", headers: { "x-admin-token": token } });
