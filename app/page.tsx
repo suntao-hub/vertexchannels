@@ -150,11 +150,11 @@ function Nav({ onContact }: { onContact: () => void }) {
               <a href="#work" style={{ fontSize: 14, fontWeight: 500, color: muted }}>Work</a>
               <a href="/for-brands" style={{ fontSize: 14, fontWeight: 500, color: muted }}>For brands</a>
             </div>
-            <button className="nav-cta" onClick={onContact}
-              style={{ background: orange, color: "#fff", border: "none", padding: "9px 22px",
-                fontSize: 14, fontWeight: 700, borderRadius: 8, cursor: "pointer" }}>
-              Get in touch
-            </button>
+            <a href="/apply" className="nav-cta"
+              style={{ background: orange, color: "#fff", textDecoration: "none", padding: "9px 22px",
+                fontSize: 14, fontWeight: 700, borderRadius: 8 }}>
+              Apply now
+            </a>
           </nav>
         </div>
       </header>
@@ -349,14 +349,14 @@ export default function Home() {
             on a share of the revenue we add.
           </p>
           <div className="hero-buttons" style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-            <button onClick={scrollToContact}
-              style={{ background: orange, color: "#fff", border: "none", padding: "14px 36px",
-                fontSize: 16, fontWeight: 700, borderRadius: 10, cursor: "pointer" }}>
-              Get in touch →
-            </button>
+            <a href="/apply"
+              style={{ display: "inline-block", background: orange, color: "#fff", textDecoration: "none",
+                padding: "14px 36px", fontSize: 16, fontWeight: 700, borderRadius: 10 }}>
+              Apply now →
+            </a>
             <a href="#services"
               style={{ display: "inline-block", background: "transparent", color: "#fff", border: "1px solid #475569",
-                padding: "14px 36px", fontSize: 16, fontWeight: 600, borderRadius: 10 }}>
+                padding: "14px 36px", fontSize: 16, fontWeight: 600, borderRadius: 10, textDecoration: "none" }}>
               See our services
             </a>
           </div>

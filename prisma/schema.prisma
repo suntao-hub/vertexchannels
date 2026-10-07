@@ -19,6 +19,11 @@ model ContactLead {
   channels    String   @default("") // comma-separated: amazon,walmart,ebay,newegg,own_site,other
   hasExcess   String   @default("") // "" | yes | no | not_sure
   mapPolicy   String   @default("") // "" | yes | no | not_sure
+  // Apply Now funnel fields
+  source           String   @default("contact") // contact | apply
+  monthlyAdSpend   Float?
+  productCategories String  @default("")
+  goals            String   @default("")
   status      String   @default("new")
   notes       String   @default("")
   firstEmailAt DateTime?
