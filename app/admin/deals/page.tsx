@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import AdminShell from "../AdminShell";
-import { OutreachSection, type OutreachEmail, type EmailTemplate } from "../OutreachSection";
+import { OutreachSection, OUTCOME_LABEL, type OutreachEmail, type EmailTemplate } from "../OutreachSection";
 import { parseCsv, autoMap, SMARTSCOUT_HINTS } from "@/lib/deals/csv";
 import { readSession } from "@/lib/admin/session";
 
@@ -176,6 +176,40 @@ function GapPills({ p }: { p: Prospect }) {
       })}
     </span>
   );
+}
+
+// ─── Next follow-up due (from sent/logged emails + template wait days) ───────
+
+type FollowUp = { label: string; color: string; sort: number };
+
+function followUp(p: Prospect, templates: EmailTemplate[]): FollowUp {
+  const quiet = (label: string): FollowUp => ({ label, color: muted, sort: 9e9 });
+  if (p.stage === "passed") return quiet("—");
+  const emails = p.emails ?? [];
+  const isSent = (e: OutreachEmail) => e.status === "sent" || e.status === "logged";
+
+  const answered = emails.find((e) => isSent(e) && e.outcome);
+  if (answered) {
+    return answered.outcome === "replied" || answered.outcome === "interested"
+      ? { label: "Replied", color: orange, sort: -1e9 }
+      : quiet(OUTCOME_LABEL[answered.outcome] ?? answered.outcome);
+  }
+
+  const seq = templates
+    .filter((t) => t.context === "prospect" && t.step > 0 && t.active)
+    .sort((a, b) => a.step - b.step);
+  const sentAt = seq.map((t) => emails.find((e) => e.templateKey === t.key && isSent(e) && e.sentAt)?.sentAt ?? null);
+  let last = -1;
+  sentAt.forEach((s, i) => { if (s) last = i; });
+  if (last < 0) return quiet("Not started");
+  const next = seq[last + 1];
+  if (!next) return quiet("Sequence done");
+
+  const due = new Date(sentAt[last]!).getTime() + next.waitDays * 86400000;
+  const days = Math.round((due - Date.now()) / 86400000);
+  if (days < 0) return { label: `Overdue ${-days}d`, color: red, sort: days };
+  if (days === 0) return { label: "Due today", color: orange, sort: 0 };
+  return { label: `In ${days}d`, color: navy, sort: days };
 }
 
 // ─── Session ─────────────────────────────────────────────────────────────────
@@ -863,6 +897,7 @@ export default function DealDeskPage() {
     score: (a, b) => bestScore(b) - bestScore(a),
     updated: (a, b) => +new Date(b.updatedAt) - +new Date(a.updatedAt),
     name: (a, b) => a.brandName.localeCompare(b.brandName),
+    followup: (a, b) => followUp(a, templates).sort - followUp(b, templates).sort,
     targets: (a, b) =>
       gapScore(b) - gapScore(a) || bestScore(b) - bestScore(a) ||
       (a.fitRank ?? 9e9) - (b.fitRank ?? 9e9),
@@ -925,6 +960,7 @@ export default function DealDeskPage() {
           </select>
           <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
             style={{ fontSize: 12, border: `1px solid ${border}`, borderRadius: 8, padding: "6px 8px", color: muted, background: "#fff" }}>
+            <option value="followup">Sort: Follow-up due</option>
             <option value="targets">Sort: Best targets</option>
             <option value="fit">Sort: Fit rank</option>
             <option value="score">Sort: Best score</option>
@@ -967,7 +1003,7 @@ export default function DealDeskPage() {
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                 <thead>
                   <tr style={{ background: "#F9FAFB", borderBottom: `1px solid ${border}` }}>
-                    {["#", "Brand", "Channels", "Stage", ...(selected ? [] : ["Products"]), "Best"].map((h) => (
+                    {["#", "Brand", "Channels", ...(selected ? [] : ["Stage"]), "Next follow-up", ...(selected ? [] : ["Products"]), "Best"].map((h) => (
                       <th key={h} style={{ padding: "9px 12px", textAlign: "left", fontSize: 11, color: muted, fontWeight: 700 }}>{h}</th>
                     ))}
                   </tr>
@@ -975,6 +1011,7 @@ export default function DealDeskPage() {
                 <tbody>
                   {filtered.map((p) => {
                     const bs = bestScore(p);
+                    const fu = followUp(p, templates);
                     return (
                       <tr key={p.id} onClick={() => setSelectedId(p.id)}
                         style={{ borderBottom: `1px solid ${border}`, cursor: "pointer", background: selectedId === p.id ? "#F0F9FF" : "#fff" }}>
@@ -991,7 +1028,8 @@ export default function DealDeskPage() {
                           <div style={{ fontSize: 11, color: muted, fontWeight: 400 }}>{p.category || "—"}</div>
                         </td>
                         <td style={{ padding: "9px 12px" }}><GapPills p={p} /></td>
-                        <td style={{ padding: "9px 12px", color: muted }}>{STAGE_LABEL[p.stage] ?? p.stage}</td>
+                        {!selected && <td style={{ padding: "9px 12px", color: muted }}>{STAGE_LABEL[p.stage] ?? p.stage}</td>}
+                        <td style={{ padding: "9px 12px", fontSize: 12, fontWeight: 700, color: fu.color, whiteSpace: "nowrap" }}>{fu.label}</td>
                         {!selected && <td style={{ padding: "9px 12px", color: muted }}>{p.products.length}</td>}
                         <td style={{ padding: "9px 12px", fontWeight: 700, color: bs >= 76 ? green : bs >= 66 ? "#A16207" : bs >= 0 ? red : muted }}>
                           {bs >= 0 ? `${bs}` : "—"}
