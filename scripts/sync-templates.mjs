@@ -13,11 +13,9 @@ const T = [
 
 {{opening}}
 
-I'm {{yourName}} with {{company}}. We run authorized wholesale accounts for brands and manage their presence on Walmart, eBay, Newegg, and other marketplaces — listings, pricing, ads, and fulfillment.
+I'm {{yourName}} with {{company}}. We run Walmart, eBay, and Newegg for tools and automotive brands as their authorized reseller: listings, pricing, ads, and fulfillment, on a share of the revenue we add. You keep control of your pricing and your brand, and there's no retainer. We took Brightworks to $1.3M in 2025 on this approach.
 
-Your {{category}} line looks strong on Amazon and light everywhere else. We'd like to open a wholesale account and run those channels for you.
-
-What do you need from us to get set up as an authorized reseller?
+If it's useful, I can send a short note on where {{brand}} is missing and what it might be worth. Would that be helpful?
 
 Thanks,
 {{yourName}}
@@ -26,16 +24,16 @@ Thanks,
     subject: "Re: {{brand}} on Walmart, eBay & Newegg",
     body: `Hi {{contact}},
 
-Circling back on opening a wholesale account for {{brand}}.
+Following up on my note about {{brand}} beyond Amazon. In case it's easier to see in one place, here's how we work: {{onepager}}
 
-What we bring, briefly:
-- Walmart, eBay, and Newegg run end to end — listings, pricing, ads, fulfillment
+The short version:
+- Walmart, eBay, and Newegg run end to end as your authorized reseller. You approve the channels and the pricing floor.
 - MAP monitoring and unauthorized-seller cleanup across marketplaces
-- Aged or excess stock cleared on the right channels — we list it, you ship each order as it sells, no wholesale write-down
+- Excess or aged stock cleared on the right channels: we list it, you ship each order as it sells, no wholesale write-down
 
-More on how it works: {{onepager}}
+If it's worth exploring, the simplest next step is a 20-minute call, where I'll bring a specific read on which channels fit {{brand}}. Or, if you'd rather start from the account side, tell me what you'd need to see to set us up as an authorized reseller.
 
-Happy to jump on a short call if that's easier — what works for you?
+What works for you?
 
 {{yourName}}
 {{company}}` },
