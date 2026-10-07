@@ -995,69 +995,82 @@ export default function DealDeskPage() {
           <ImportPanel token={token} onImported={reloadSilent} onClose={() => setShowImport(false)} />
         )}
 
-        <div style={{ display: "grid", gridTemplateColumns: selected ? "minmax(0,420px) 1fr" : "1fr", gap: 20, alignItems: "start" }}>
-          <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 12, overflow: "hidden" }}>
-            {filtered.length === 0 ? (
-              <div style={{ padding: 36, textAlign: "center", color: muted, fontSize: 14 }}>No prospects.</div>
-            ) : (
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-                <thead>
-                  <tr style={{ background: "#F9FAFB", borderBottom: `1px solid ${border}` }}>
-                    {["#", "Brand", "Channels", ...(selected ? [] : ["Stage"]), "Next follow-up", ...(selected ? [] : ["Products"]), "Best"].map((h) => (
-                      <th key={h} style={{ padding: "9px 12px", textAlign: "left", fontSize: 11, color: muted, fontWeight: 700 }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((p) => {
-                    const bs = bestScore(p);
-                    const fu = followUp(p, templates);
-                    return (
-                      <tr key={p.id} onClick={() => setSelectedId(p.id)}
-                        style={{ borderBottom: `1px solid ${border}`, cursor: "pointer", background: selectedId === p.id ? "#F0F9FF" : "#fff" }}>
-                        <td style={{ padding: "9px 12px", color: muted, fontWeight: 700, width: 32 }}>{p.fitRank ?? "—"}</td>
-                        <td style={{ padding: "9px 12px", fontWeight: 700, color: navy }}>
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                            {p.brandName}
-                            {p.angle && p.angle !== "channel" && (
-                              <span style={{ background: ANGLE_TAG[p.angle]?.bg, color: ANGLE_TAG[p.angle]?.fg, fontSize: 10, fontWeight: 700, padding: "1px 6px", borderRadius: 10 }}>
-                                {ANGLE_TAG[p.angle]?.short}
-                              </span>
-                            )}
-                          </span>
-                          <div style={{ fontSize: 11, color: muted, fontWeight: 400 }}>{p.category || "—"}</div>
-                        </td>
-                        <td style={{ padding: "9px 12px" }}><GapPills p={p} /></td>
-                        {!selected && <td style={{ padding: "9px 12px", color: muted }}>{STAGE_LABEL[p.stage] ?? p.stage}</td>}
-                        <td style={{ padding: "9px 12px", fontSize: 12, fontWeight: 700, color: fu.color, whiteSpace: "nowrap" }}>{fu.label}</td>
-                        {!selected && <td style={{ padding: "9px 12px", color: muted }}>{p.products.length}</td>}
-                        <td style={{ padding: "9px 12px", fontWeight: 700, color: bs >= 76 ? green : bs >= 66 ? "#A16207" : bs >= 0 ? red : muted }}>
-                          {bs >= 0 ? `${bs}` : "—"}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            )}
-          </div>
-
-          {selected && (
-            <ProspectDetail
-              key={selected.id}
-              prospect={selected} templates={templates} token={token} keepaOn={keepaOn}
-              onUpdate={(np) => setProspects((ps) => ps.map((x) => x.id === np.id ? np : x))}
-              onReload={reloadSilent}
-              onClose={() => setSelectedId(null)}
-              onDelete={async () => {
-                if (!confirm(`Delete ${selected.brandName}?`)) return;
-                await fetch(`/api/admin/deals/${selected.id}`, { method: "DELETE", headers: { "x-admin-token": token } });
-                setProspects((ps) => ps.filter((x) => x.id !== selected.id));
-                setSelectedId(null);
-              }}
-            />
+        <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 12, overflow: "hidden" }}>
+          {filtered.length === 0 ? (
+            <div style={{ padding: 36, textAlign: "center", color: muted, fontSize: 14 }}>No prospects.</div>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+              <thead>
+                <tr style={{ background: "#F9FAFB", borderBottom: `1px solid ${border}` }}>
+                  {["#", "Brand", "Channels", "Stage", "Next follow-up", "Products", "Best"].map((h) => (
+                    <th key={h} style={{ padding: "9px 12px", textAlign: "left", fontSize: 11, color: muted, fontWeight: 700 }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((p) => {
+                  const bs = bestScore(p);
+                  const fu = followUp(p, templates);
+                  return (
+                    <tr key={p.id} onClick={() => setSelectedId(p.id)}
+                      style={{ borderBottom: `1px solid ${border}`, cursor: "pointer", background: selectedId === p.id ? "#F0F9FF" : "#fff" }}>
+                      <td style={{ padding: "9px 12px", color: muted, fontWeight: 700, width: 32 }}>{p.fitRank ?? "—"}</td>
+                      <td style={{ padding: "9px 12px", fontWeight: 700, color: navy }}>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                          {p.brandName}
+                          {p.angle && p.angle !== "channel" && (
+                            <span style={{ background: ANGLE_TAG[p.angle]?.bg, color: ANGLE_TAG[p.angle]?.fg, fontSize: 10, fontWeight: 700, padding: "1px 6px", borderRadius: 10 }}>
+                              {ANGLE_TAG[p.angle]?.short}
+                            </span>
+                          )}
+                        </span>
+                        <div style={{ fontSize: 11, color: muted, fontWeight: 400 }}>{p.category || "—"}</div>
+                      </td>
+                      <td style={{ padding: "9px 12px" }}><GapPills p={p} /></td>
+                      <td style={{ padding: "9px 12px", color: muted }}>{STAGE_LABEL[p.stage] ?? p.stage}</td>
+                      <td style={{ padding: "9px 12px", fontSize: 12, fontWeight: 700, color: fu.color, whiteSpace: "nowrap" }}>{fu.label}</td>
+                      <td style={{ padding: "9px 12px", color: muted }}>{p.products.length}</td>
+                      <td style={{ padding: "9px 12px", fontWeight: 700, color: bs >= 76 ? green : bs >= 66 ? "#A16207" : bs >= 0 ? red : muted }}>
+                        {bs >= 0 ? `${bs}` : "—"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           )}
         </div>
+
+        {/* Modal overlay */}
+        {selected && (
+          <>
+            <div
+              onClick={() => setSelectedId(null)}
+              style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 50 }}
+            />
+            <div style={{
+              position: "fixed", top: 0, right: 0, bottom: 0, width: "min(600px, 100vw)",
+              overflowY: "auto", zIndex: 51, background: "#F9FAFB",
+              boxShadow: "-4px 0 32px rgba(0,0,0,0.18)",
+            }}>
+              <div style={{ padding: 20 }}>
+                <ProspectDetail
+                  key={selected.id}
+                  prospect={selected} templates={templates} token={token} keepaOn={keepaOn}
+                  onUpdate={(np) => setProspects((ps) => ps.map((x) => x.id === np.id ? np : x))}
+                  onReload={reloadSilent}
+                  onClose={() => setSelectedId(null)}
+                  onDelete={async () => {
+                    if (!confirm(`Delete ${selected.brandName}?`)) return;
+                    await fetch(`/api/admin/deals/${selected.id}`, { method: "DELETE", headers: { "x-admin-token": token } });
+                    setProspects((ps) => ps.filter((x) => x.id !== selected.id));
+                    setSelectedId(null);
+                  }}
+                />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </AdminShell>
   );
