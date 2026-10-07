@@ -2,6 +2,10 @@
 
 Version 1.0 · Vertex Channels · October 2026
 
+> **Status (2026-10-06): reference only. A slim version shipped instead (commit `1a1dc94`).**
+> Built: Walmart/eBay/Newegg presence, MAP policy, accepts-new-resellers, minimum order, and terms-learned fields; W/E/N gap pills, missing-channel and MAP filters, and a "Best targets" sort in the Deal Desk list; a Brand HQ section in the prospect detail.
+> Not built, on purpose: the Library card grid (§7A), the stored HQ Score and `/hq-score` route (§8, §11), AOV / margin / brand tier / `researchNotes` fields (§6), and the CSV import extension (§10). §7C's "existing Kanban board" never existed; the list with a stage filter is the pipeline view.
+
 ## 1. Overview
 
 Brand HQ is an internal tool built inside the Vertex Channels admin (`/admin/deals`) that turns the Deal Desk's existing brand-prospect pipeline into a structured, searchable supplier database — our equivalent of High Ticket's Supplier HQ. It consolidates every piece of research (marketplace presence, margin, MAP policy, contact info, deal score) into one place, surfaces which brands are worth pursuing, and makes it fast to onboard a new researcher or hand off a pipeline.
