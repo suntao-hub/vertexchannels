@@ -171,11 +171,15 @@ function Kicker({ children, light }: { children: React.ReactNode; light?: boolea
 
 function ContactForm({ formRef }: { formRef: React.RefObject<HTMLDivElement | null> }) {
   const [form, setForm] = useState({ name: "", email: "", company: "", service: "", message: "" });
+  const [extra, setExtra] = useState({ revenueBand: "", channels: [] as string[], hasExcess: "", mapPolicy: "" });
   const [sending, setSending] = useState(false);
   const [sent, setSent]       = useState(false);
   const [error, setError]     = useState("");
 
   function set(k: string, v: string) { setForm(f => ({ ...f, [k]: v })); }
+  function toggleChannel(c: string) {
+    setExtra(x => ({ ...x, channels: x.channels.includes(c) ? x.channels.filter(y => y !== c) : [...x.channels, c] }));
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -183,7 +187,7 @@ function ContactForm({ formRef }: { formRef: React.RefObject<HTMLDivElement | nu
     try {
       const r = await fetch("/api/contact", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, ...extra }),
       });
       if (!r.ok) { const j = await r.json(); throw new Error(j.error); }
       setSent(true);
@@ -244,6 +248,58 @@ function ContactForm({ formRef }: { formRef: React.RefObject<HTMLDivElement | nu
                 {SERVICES_LIST.map(s => <option key={s}>{s}</option>)}
                 <option>General inquiry</option>
               </select>
+            </div>
+            <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 10, padding: "16px 16px 4px", marginBottom: 16 }}>
+              <p style={{ fontSize: 13, fontWeight: 700, margin: "0 0 2px" }}>A little about your business</p>
+              <p style={{ fontSize: 12, color: muted, margin: "0 0 14px" }}>
+                Optional, but it helps us reply with something specific.
+              </p>
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ fontSize: 13, fontWeight: 600, display: "block", marginBottom: 6 }}>Roughly how much do you sell per year?</label>
+                <select style={inp} value={extra.revenueBand} onChange={e => setExtra(x => ({ ...x, revenueBand: e.target.value }))}>
+                  <option value="">Select…</option>
+                  <option value="under_500k">Under $500K</option>
+                  <option value="500k_1_5m">$500K – $1.5M</option>
+                  <option value="1_5m_5m">$1.5M – $5M</option>
+                  <option value="5m_15m">$5M – $15M</option>
+                  <option value="over_15m">Over $15M</option>
+                </select>
+              </div>
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ fontSize: 13, fontWeight: 600, display: "block", marginBottom: 6 }}>Where do you sell today?</label>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {([["amazon", "Amazon"], ["walmart", "Walmart"], ["ebay", "eBay"], ["newegg", "Newegg"], ["own_site", "Own website"], ["other", "Other"]] as const).map(([v, l]) => {
+                    const on = extra.channels.includes(v);
+                    return (
+                      <button type="button" key={v} onClick={() => toggleChannel(v)} aria-pressed={on}
+                        style={{ padding: "7px 14px", fontSize: 13, fontWeight: 600, borderRadius: 20, cursor: "pointer",
+                          border: `1px solid ${on ? orange : border}`, background: on ? "#FFF7ED" : "#fff", color: on ? orange : muted }}>
+                        {l}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 16, marginBottom: 14 }}>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, display: "block", marginBottom: 6 }}>Excess or aged inventory?</label>
+                  <select style={inp} value={extra.hasExcess} onChange={e => setExtra(x => ({ ...x, hasExcess: e.target.value }))}>
+                    <option value="">Select…</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                    <option value="not_sure">Not sure</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, display: "block", marginBottom: 6 }}>Do you have a MAP policy?</label>
+                  <select style={inp} value={extra.mapPolicy} onChange={e => setExtra(x => ({ ...x, mapPolicy: e.target.value }))}>
+                    <option value="">Select…</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                    <option value="not_sure">Not sure</option>
+                  </select>
+                </div>
+              </div>
             </div>
             <div style={{ marginBottom: 24 }}>
               <label style={{ fontSize: 13, fontWeight: 600, display: "block", marginBottom: 6 }}>

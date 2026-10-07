@@ -13,8 +13,18 @@ const muted  = "#6B7280";
 type Lead = {
   id: string; name: string; email: string; company: string;
   service: string; message: string; status: string; notes: string; createdAt: string;
+  revenueBand?: string; channels?: string; hasExcess?: string; mapPolicy?: string;
   emails?: OutreachEmail[];
 };
+
+const REVENUE_LABEL: Record<string, string> = {
+  under_500k: "Under $500K", "500k_1_5m": "$500K–$1.5M", "1_5m_5m": "$1.5M–$5M",
+  "5m_15m": "$5M–$15M", over_15m: "Over $15M",
+};
+const CHANNEL_LABEL: Record<string, string> = {
+  amazon: "Amazon", walmart: "Walmart", ebay: "eBay", newegg: "Newegg", own_site: "Own website", other: "Other",
+};
+const YES_NO_LABEL: Record<string, string> = { yes: "Yes", no: "No", not_sure: "Not sure" };
 
 const STATUS_OPTIONS = ["new", "contacted", "qualified", "proposal", "closed-won", "closed-lost"];
 const STATUS_BG:   Record<string, string> = { "new":"#DBEAFE","contacted":"#FEF9C3","qualified":"#DCFCE7","proposal":"#EDE9FE","closed-won":"#D1FAE5","closed-lost":"#FEE2E2" };
@@ -277,6 +287,10 @@ function Dashboard({ sessionToken }: { sessionToken: string }) {
               {[
                 { label: "Company", value: selected.company || "—" },
                 { label: "Service interest", value: selected.service || "—" },
+                { label: "Annual revenue", value: REVENUE_LABEL[selected.revenueBand ?? ""] ?? "—" },
+                { label: "Sells on", value: (selected.channels ?? "").split(",").filter(Boolean).map(c => CHANNEL_LABEL[c] ?? c).join(", ") || "—" },
+                { label: "Excess inventory", value: YES_NO_LABEL[selected.hasExcess ?? ""] ?? "—" },
+                { label: "MAP policy", value: YES_NO_LABEL[selected.mapPolicy ?? ""] ?? "—" },
                 { label: "Submitted", value: new Date(selected.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }) },
               ].map(row => (
                 <div key={row.label} style={{ marginBottom: 10 }}>
