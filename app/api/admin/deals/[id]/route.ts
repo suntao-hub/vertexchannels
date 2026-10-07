@@ -6,6 +6,8 @@ const STR_FIELDS = [
   "brandName", "website", "contactName", "contactEmail", "contactPhone",
   "category", "stage", "source", "angle", "referredBy", "archiveReason",
   "notes", "openingLine",
+  "walmartPresence", "ebayPresence", "neweggPresence", "mapPolicy",
+  "acceptsResellers", "minOrder", "termsNotes",
 ] as const;
 const DATE_FIELDS = ["firstEmailAt", "secondEmailAt"] as const;
 

@@ -83,6 +83,13 @@ interface Prospect {
   notes: string;
   firstEmailAt: string | null;
   secondEmailAt: string | null;
+  walmartPresence: string;
+  ebayPresence: string;
+  neweggPresence: string;
+  mapPolicy: string;
+  acceptsResellers: string;
+  minOrder: string;
+  termsNotes: string;
   products: Product[];
   emails: OutreachEmail[];
   updatedAt: string;
@@ -112,6 +119,64 @@ const ANGLE_TAG: Record<string, { bg: string; fg: string; short: string }> = {
   excess: { bg: "#FEF3C7", fg: "#92400E", short: "Excess" },
   partner: { bg: "#E0E7FF", fg: "#3730A3", short: "Partner" },
 };
+
+// ─── Brand HQ: channel presence + reseller terms ─────────────────────────────
+
+const CHANNELS = [
+  { key: "walmartPresence", short: "W", label: "Walmart" },
+  { key: "ebayPresence", short: "E", label: "eBay" },
+  { key: "neweggPresence", short: "N", label: "Newegg" },
+] as const;
+
+const PRESENCE_OPTIONS: [string, string][] = [
+  ["", "Unknown"], ["none", "None"], ["thin", "Thin"], ["present", "Present"],
+];
+const MAP_OPTIONS: [string, string][] = [
+  ["", "Unknown"], ["strict", "Strict"], ["flexible", "Flexible"], ["none", "None"],
+];
+const RESELLER_OPTIONS: [string, string][] = [
+  ["", "Unknown"], ["yes", "Yes"], ["maybe", "Maybe"], ["no", "No"],
+];
+
+// None/thin presence on a channel is the opportunity; unknown counts as no signal.
+const gapValue = (v: string) => (v === "none" ? 1 : v === "thin" ? 0.5 : 0);
+const gapScore = (p: Prospect) => CHANNELS.reduce((s, c) => s + gapValue(p[c.key]), 0);
+
+function matchesChannelFilter(p: Prospect, f: string) {
+  if (f === "unchecked") return CHANNELS.some((c) => !p[c.key]);
+  if (f === "any") return CHANNELS.some((c) => gapValue(p[c.key]) > 0);
+  const c = CHANNELS.find((x) => x.label.toLowerCase() === f);
+  return c ? gapValue(p[c.key]) > 0 : true;
+}
+
+const PILL_STYLE: Record<string, { bg: string; fg: string; border: string }> = {
+  none: { bg: "#FFEDD5", fg: "#C2410C", border: "#FDBA74" },
+  thin: { bg: "#FEF3C7", fg: "#92400E", border: "#FCD34D" },
+  present: { bg: "#F3F4F6", fg: "#9CA3AF", border: "#E5E7EB" },
+  "": { bg: "#fff", fg: "#D1D5DB", border: "#E5E7EB" },
+};
+
+function GapPills({ p }: { p: Prospect }) {
+  return (
+    <span style={{ display: "inline-flex", gap: 3 }}>
+      {CHANNELS.map((c) => {
+        const v = p[c.key] ?? "";
+        const s = PILL_STYLE[v] ?? PILL_STYLE[""];
+        return (
+          <span key={c.key}
+            title={`${c.label}: ${v ? v : "unknown"}${gapValue(v) > 0 ? " — opportunity" : ""}`}
+            style={{
+              background: s.bg, color: s.fg, border: `1px solid ${s.border}`,
+              fontSize: 10, fontWeight: 800, borderRadius: 4, width: 18, height: 18,
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+            }}>
+            {c.short}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
 
 // ─── Session ─────────────────────────────────────────────────────────────────
 
@@ -581,6 +646,16 @@ function ProspectDetail({ prospect, templates, token, keepaOn, onUpdate, onReloa
     );
   };
 
+  const selectField = (label: string, key: keyof Prospect, options: [string, string][]) => (
+    <label key={String(key)} style={{ display: "block", fontSize: 12 }}>
+      <span style={{ color: muted, fontWeight: 600 }}>{label}</span>
+      <select value={(prospect[key] as string) ?? ""} onChange={(e) => patch({ [key]: e.target.value })}
+        style={{ width: "100%", padding: "6px 8px", fontSize: 13, border: `1px solid ${border}`, borderRadius: 6, marginTop: 3, boxSizing: "border-box", background: "#fff", fontFamily: "inherit" }}>
+        {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+      </select>
+    </label>
+  );
+
   return (
     <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 12, padding: 18 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
@@ -645,6 +720,33 @@ function ProspectDetail({ prospect, templates, token, keepaOn, onUpdate, onReloa
         />
       </label>
 
+      {/* Brand HQ */}
+      <div style={{ marginTop: 14, padding: 12, background: "#F9FAFB", border: `1px solid ${border}`, borderRadius: 10 }}>
+        <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", color: muted, margin: "0 0 2px" }}>
+          Brand HQ
+        </p>
+        <p style={{ fontSize: 11, color: muted, margin: "0 0 10px" }}>
+          Channel presence — none or thin is the opportunity. Record what you learn from replies below.
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 10 }}>
+          {CHANNELS.map((c) => selectField(c.label, c.key, PRESENCE_OPTIONS))}
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+          {selectField("MAP policy", "mapPolicy", MAP_OPTIONS)}
+          {selectField("Accepts new resellers", "acceptsResellers", RESELLER_OPTIONS)}
+        </div>
+        {field("Minimum order", "minOrder")}
+        <label key={`terms-${prospect.id}`} style={{ display: "block", fontSize: 12 }}>
+          <span style={{ color: muted, fontWeight: 600 }}>
+            Terms learned <span style={{ fontWeight: 400 }}>— fees, discount tier, who decides, why they said no</span>
+          </span>
+          <textarea defaultValue={prospect.termsNotes} rows={2}
+            onBlur={(e) => { if (e.target.value !== prospect.termsNotes) patch({ termsNotes: e.target.value }); }}
+            style={{ width: "100%", padding: "8px 10px", fontSize: 13, border: `1px solid ${border}`, borderRadius: 6, marginTop: 3, boxSizing: "border-box", resize: "vertical", fontFamily: "inherit", background: "#fff" }}
+          />
+        </label>
+      </div>
+
       <OutreachSection
         ownerKind="prospect" ownerId={prospect.id} contactEmail={prospect.contactEmail}
         emails={prospect.emails ?? []}
@@ -697,6 +799,8 @@ export default function DealDeskPage() {
   const [keepaOn, setKeepaOn] = useState(false);
   const [stageFilter, setStageFilter] = useState("all");
   const [angleFilter, setAngleFilter] = useState("all");
+  const [channelFilter, setChannelFilter] = useState("all");
+  const [mapFilter, setMapFilter] = useState("all");
   const [sortBy, setSortBy] = useState("fit");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
@@ -753,10 +857,15 @@ export default function DealDeskPage() {
     score: (a, b) => bestScore(b) - bestScore(a),
     updated: (a, b) => +new Date(b.updatedAt) - +new Date(a.updatedAt),
     name: (a, b) => a.brandName.localeCompare(b.brandName),
+    targets: (a, b) =>
+      gapScore(b) - gapScore(a) || bestScore(b) - bestScore(a) ||
+      (a.fitRank ?? 9e9) - (b.fitRank ?? 9e9),
   };
   const filtered = prospects
     .filter((p) => stageFilter === "all" || p.stage === stageFilter)
     .filter((p) => angleFilter === "all" || (p.angle || "channel") === angleFilter)
+    .filter((p) => channelFilter === "all" || matchesChannelFilter(p, channelFilter))
+    .filter((p) => mapFilter === "all" || (p.mapPolicy || "unknown") === mapFilter)
     .slice().sort(SORTS[sortBy] ?? SORTS.fit);
   const selected = prospects.find((p) => p.id === selectedId) ?? null;
 
@@ -791,8 +900,26 @@ export default function DealDeskPage() {
             <option value="all">All angles</option>
             {ANGLES.map((a) => <option key={a} value={a}>{ANGLE_LABEL[a]}</option>)}
           </select>
+          <select value={channelFilter} onChange={(e) => setChannelFilter(e.target.value)}
+            style={{ fontSize: 12, border: `1px solid ${border}`, borderRadius: 8, padding: "6px 8px", color: muted, background: "#fff" }}>
+            <option value="all">All channels</option>
+            <option value="any">Missing any channel</option>
+            <option value="walmart">Missing Walmart</option>
+            <option value="ebay">Missing eBay</option>
+            <option value="newegg">Missing Newegg</option>
+            <option value="unchecked">Not checked yet</option>
+          </select>
+          <select value={mapFilter} onChange={(e) => setMapFilter(e.target.value)}
+            style={{ fontSize: 12, border: `1px solid ${border}`, borderRadius: 8, padding: "6px 8px", color: muted, background: "#fff" }}>
+            <option value="all">Any MAP policy</option>
+            <option value="strict">MAP: strict</option>
+            <option value="flexible">MAP: flexible</option>
+            <option value="none">MAP: none</option>
+            <option value="unknown">MAP: unknown</option>
+          </select>
           <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
             style={{ fontSize: 12, border: `1px solid ${border}`, borderRadius: 8, padding: "6px 8px", color: muted, background: "#fff" }}>
+            <option value="targets">Sort: Best targets</option>
             <option value="fit">Sort: Fit rank</option>
             <option value="score">Sort: Best score</option>
             <option value="updated">Sort: Recently updated</option>
@@ -834,7 +961,7 @@ export default function DealDeskPage() {
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                 <thead>
                   <tr style={{ background: "#F9FAFB", borderBottom: `1px solid ${border}` }}>
-                    {["#", "Brand", "Stage", "Products", "Best"].map((h) => (
+                    {["#", "Brand", "Channels", "Stage", "Products", "Best"].map((h) => (
                       <th key={h} style={{ padding: "9px 12px", textAlign: "left", fontSize: 11, color: muted, fontWeight: 700 }}>{h}</th>
                     ))}
                   </tr>
@@ -857,6 +984,7 @@ export default function DealDeskPage() {
                           </span>
                           <div style={{ fontSize: 11, color: muted, fontWeight: 400 }}>{p.category || "—"}</div>
                         </td>
+                        <td style={{ padding: "9px 12px" }}><GapPills p={p} /></td>
                         <td style={{ padding: "9px 12px", color: muted }}>{STAGE_LABEL[p.stage] ?? p.stage}</td>
                         <td style={{ padding: "9px 12px", color: muted }}>{p.products.length}</td>
                         <td style={{ padding: "9px 12px", fontWeight: 700, color: bs >= 76 ? green : bs >= 66 ? "#A16207" : bs >= 0 ? red : muted }}>

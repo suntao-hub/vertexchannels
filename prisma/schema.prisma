@@ -49,6 +49,14 @@ model BrandProspect {
   notes         String   @default("")
   firstEmailAt  DateTime?
   secondEmailAt DateTime?
+  // Brand HQ — channel presence + reseller terms learned from outreach
+  walmartPresence  String @default("") // "" unknown | none | thin | present
+  ebayPresence     String @default("")
+  neweggPresence   String @default("")
+  mapPolicy        String @default("") // "" unknown | strict | flexible | none
+  acceptsResellers String @default("") // "" unknown | yes | maybe | no
+  minOrder         String @default("")
+  termsNotes       String @default("")
   products      ProspectProduct[]
   emails        OutreachEmail[]
   createdAt     DateTime @default(now())
