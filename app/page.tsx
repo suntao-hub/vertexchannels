@@ -172,6 +172,7 @@ function Kicker({ children, light }: { children: React.ReactNode; light?: boolea
 function ContactForm({ formRef }: { formRef: React.RefObject<HTMLDivElement | null> }) {
   const [form, setForm] = useState({ name: "", email: "", company: "", service: "", message: "" });
   const [extra, setExtra] = useState({ revenueBand: "", channels: [] as string[], hasExcess: "", mapPolicy: "" });
+  const [step, setStep]       = useState<1 | 2>(1);
   const [sending, setSending] = useState(false);
   const [sent, setSent]       = useState(false);
   const [error, setError]     = useState("");
@@ -180,9 +181,14 @@ function ContactForm({ formRef }: { formRef: React.RefObject<HTMLDivElement | nu
   function toggleChannel(c: string) {
     setExtra(x => ({ ...x, channels: x.channels.includes(c) ? x.channels.filter(y => y !== c) : [...x.channels, c] }));
   }
+  function go(n: 1 | 2) {
+    setStep(n); setError("");
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (step === 1) { go(2); return; }
     setError(""); setSending(true);
     try {
       const r = await fetch("/api/contact", {
@@ -223,6 +229,10 @@ function ContactForm({ formRef }: { formRef: React.RefObject<HTMLDivElement | nu
               <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8,
                 padding: "12px 16px", color: "#DC2626", fontSize: 14, marginBottom: 20 }}>{error}</div>
             )}
+            <p style={{ fontSize: 12, fontWeight: 700, color: muted, letterSpacing: "0.05em", textTransform: "uppercase", margin: "0 0 14px" }}>
+              Step {step} of 2
+            </p>
+            {step === 1 && (<>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 16, marginBottom: 16 }}>
               <div>
                 <label style={{ fontSize: 13, fontWeight: 600, display: "block", marginBottom: 6 }}>
@@ -241,6 +251,13 @@ function ContactForm({ formRef }: { formRef: React.RefObject<HTMLDivElement | nu
               <label style={{ fontSize: 13, fontWeight: 600, display: "block", marginBottom: 6 }}>Company / brand name</label>
               <input style={inp} value={form.company} onChange={e => set("company", e.target.value)} placeholder="Your brand or company" />
             </div>
+            <button type="submit"
+              style={{ width: "100%", background: orange, color: "#fff", border: "none", padding: 14,
+                fontSize: 16, fontWeight: 700, borderRadius: 10, cursor: "pointer" }}>
+              Continue →
+            </button>
+            </>)}
+            {step === 2 && (<>
             <div style={{ marginBottom: 16 }}>
               <label style={{ fontSize: 13, fontWeight: 600, display: "block", marginBottom: 6 }}>What are you interested in?</label>
               <select style={inp} value={form.service} onChange={e => set("service", e.target.value)}>
@@ -309,11 +326,19 @@ function ContactForm({ formRef }: { formRef: React.RefObject<HTMLDivElement | nu
                 value={form.message} onChange={e => set("message", e.target.value)}
                 placeholder="Where do you sell today? What&#39;s the biggest gap or the biggest headache?" required />
             </div>
-            <button type="submit" disabled={sending}
-              style={{ width: "100%", background: sending ? "#9CA3AF" : orange, color: "#fff", border: "none",
-                padding: 14, fontSize: 16, fontWeight: 700, borderRadius: 10, cursor: sending ? "not-allowed" : "pointer" }}>
-              {sending ? "Sending…" : "Send message →"}
-            </button>
+            <div style={{ display: "flex", gap: 12 }}>
+              <button type="button" onClick={() => go(1)}
+                style={{ background: "#fff", color: muted, border: `1px solid ${border}`, padding: "14px 22px",
+                  fontSize: 15, fontWeight: 600, borderRadius: 10, cursor: "pointer" }}>
+                ← Back
+              </button>
+              <button type="submit" disabled={sending}
+                style={{ flex: 1, background: sending ? "#9CA3AF" : orange, color: "#fff", border: "none",
+                  padding: 14, fontSize: 16, fontWeight: 700, borderRadius: 10, cursor: sending ? "not-allowed" : "pointer" }}>
+                {sending ? "Sending…" : "Send message →"}
+              </button>
+            </div>
+            </>)}
           </form>
         )}
       </div>
