@@ -1046,13 +1046,18 @@ export default function DealDeskPage() {
           <>
             <div
               onClick={() => setSelectedId(null)}
-              style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 50 }}
-            />
-            <div style={{
-              position: "fixed", top: 0, right: 0, bottom: 0, width: "min(600px, 100vw)",
-              overflowY: "auto", zIndex: 51, background: "#F9FAFB",
-              boxShadow: "-4px 0 32px rgba(0,0,0,0.18)",
-            }}>
+              style={{
+                position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 50,
+                display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
+              }}
+            >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: "min(680px, 100%)", maxHeight: "calc(100vh - 48px)", overflowY: "auto",
+                background: "#F9FAFB", borderRadius: 14, boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+              }}
+            >
               <div style={{ padding: 20 }}>
                 <ProspectDetail
                   key={selected.id}
@@ -1068,6 +1073,7 @@ export default function DealDeskPage() {
                   }}
                 />
               </div>
+            </div>
             </div>
           </>
         )}
