@@ -46,10 +46,47 @@ export function parseCsv(text: string): ParsedCsv {
   return { headers, rows };
 }
 
+// Tab-separated text, e.g. a trade-show directory copied off a web page: a
+// header line with tabs, data rows with tabs, and stray lines (counts, section
+// titles, lone name repeats) with none. Dedupes on the first column because
+// "featured" and "all" sections repeat the same exhibitors.
+export function looksTabSeparated(text: string, fileName = ""): boolean {
+  if (/\.csv$/i.test(fileName)) return false;
+  return text.split(/\r?\n/).slice(0, 20).some((l) => l.includes("\t"));
+}
+
+export function parseTabText(text: string): ParsedCsv {
+  const lines = text.replace(/^﻿/, "").split(/\r?\n/);
+  const headerIdx = lines.findIndex((l) => l.includes("\t") && l.split("\t")[0].trim() !== "");
+  if (headerIdx < 0) return { headers: [], rows: [] };
+
+  const rawHeaderLine = lines[headerIdx];
+  const cols = rawHeaderLine.split("\t").map((h) => h.trim());
+  const keep = cols.map((h, i) => ({ h, i })).filter((c) => c.h !== "" && !/^add to planner$/i.test(c.h));
+  const headers = keep.map((c) => c.h);
+  const key = rawHeaderLine.split("\t")[0].trim().toLowerCase();
+
+  const seen = new Set<string>();
+  const rows: Record<string, string>[] = [];
+  for (let n = headerIdx + 1; n < lines.length; n++) {
+    const parts = lines[n].split("\t");
+    if (parts.length < 2) continue;
+    const first = (parts[0] ?? "").trim();
+    if (!first || first.toLowerCase() === key) continue; // blank / repeated header
+    const id = first.toLowerCase();
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const obj: Record<string, string> = {};
+    keep.forEach((c) => { obj[c.h] = (parts[c.i] ?? "").trim(); });
+    rows.push(obj);
+  }
+  return { headers, rows };
+}
+
 // Fuzzy auto-mapping for the "SmartScout" preset. Values are ordered
 // lowercase substrings to try against each header.
 export const SMARTSCOUT_HINTS: Record<string, string[]> = {
-  brandName: ["brand name", "brand", "manufacturer"],
+  brandName: ["brand name", "brand", "manufacturer", "exhibitor", "company name"],
   website: ["website", "domain", "web site"],
   category: ["subcategory", "sub category", "category", "main category"],
   contactEmail: ["email", "contact email", "e-mail"],

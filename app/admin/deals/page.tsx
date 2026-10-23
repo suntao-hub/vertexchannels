@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import AdminShell from "../AdminShell";
 import { OutreachSection, OUTCOME_LABEL, type OutreachEmail, type EmailTemplate } from "../OutreachSection";
-import { parseCsv, autoMap, SMARTSCOUT_HINTS } from "@/lib/deals/csv";
+import { parseCsv, parseTabText, looksTabSeparated, autoMap, SMARTSCOUT_HINTS } from "@/lib/deals/csv";
 import { readSession } from "@/lib/admin/session";
 
 const navy = "#0A2333";
@@ -1175,6 +1175,7 @@ function ImportPanel({ token, onImported, onClose }: {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ created: number; skipped: number } | null>(null);
   const [err, setErr] = useState("");
+  const [info, setInfo] = useState("");
 
   function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -1183,8 +1184,11 @@ function ImportPanel({ token, onImported, onClose }: {
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        const { headers: h, rows: r } = parseCsv(String(reader.result ?? ""));
+        const text = String(reader.result ?? "");
+        const tabbed = looksTabSeparated(text, file.name);
+        const { headers: h, rows: r } = tabbed ? parseTabText(text) : parseCsv(text);
         if (!h.length) { setErr("Couldn't read any columns from that file."); return; }
+        setInfo(tabbed ? `Read as tab-separated text (${r.length} rows, duplicates removed) — converted automatically.` : "");
         setHeaders(h); setRows(r);
         const auto = autoMap(h, SMARTSCOUT_HINTS);
         setMap(auto);
@@ -1244,13 +1248,14 @@ function ImportPanel({ token, onImported, onClose }: {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
         <p style={{ fontSize: 14, fontWeight: 800, color: navy, margin: 0 }}>Import brands from CSV</p>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 11, color: muted }}>SmartScout, Jungle Scout, Helium 10, or any brand list</span>
+          <span style={{ fontSize: 11, color: muted }}>CSV or tab-separated text — SmartScout, Jungle Scout, Helium 10, trade-show lists, any brand list</span>
           <button onClick={onClose} style={{ background: "none", border: "none", color: muted, fontSize: 18, cursor: "pointer", lineHeight: 1 }}>×</button>
         </div>
       </div>
 
-      <input type="file" accept=".csv,text/csv" onChange={onFile} style={{ fontSize: 13, marginBottom: 12 }} />
+      <input type="file" accept=".csv,.tsv,.txt,text/csv,text/plain,text/tab-separated-values" onChange={onFile} style={{ fontSize: 13, marginBottom: 12 }} />
       {err && <p style={{ color: "#DC2626", fontSize: 12, margin: "0 0 10px" }}>{err}</p>}
+      {info && !err && <p style={{ color: "#15803D", fontSize: 12, margin: "0 0 10px" }}>{info}</p>}
 
       {headers.length > 0 && !result && (
         <>
