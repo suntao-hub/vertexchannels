@@ -8,6 +8,7 @@ const STR_FIELDS = [
   "notes", "openingLine",
   "walmartPresence", "ebayPresence", "neweggPresence", "mapPolicy",
   "acceptsResellers", "minOrder", "termsNotes",
+  "tradeShow", "booth", "showStatus",
 ] as const;
 const DATE_FIELDS = ["firstEmailAt", "secondEmailAt"] as const;
 

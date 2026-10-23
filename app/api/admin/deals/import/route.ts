@@ -8,6 +8,7 @@ interface ImportRow {
   category?: string;
   contactEmail?: string;
   fitRank?: number | null;
+  booth?: string;
   notes?: string;
 }
 
@@ -21,7 +22,10 @@ function parseRank(v: unknown): number | null {
 // (case-insensitive) against everything already in the pipeline.
 export async function POST(req: NextRequest) {
   if (!checkAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const { rows, source } = (await req.json()) as { rows: ImportRow[]; source?: string };
+  const { rows, source, tradeShow } = (await req.json()) as {
+    rows: ImportRow[]; source?: string; tradeShow?: string;
+  };
+  const show = (tradeShow ?? "").trim().slice(0, 80);
 
   if (!Array.isArray(rows) || rows.length === 0)
     return NextResponse.json({ error: "No rows." }, { status: 400 });
@@ -51,6 +55,7 @@ export async function POST(req: NextRequest) {
         fitRank: parseRank(r.fitRank),
         notes: (r.notes ?? "").trim(),
         source: source === "smartscout" ? "smartscout" : "import",
+        ...(show ? { tradeShow: show, booth: (r.booth ?? "").trim().slice(0, 60), showStatus: "to_visit" } : {}),
       },
     });
     created++;

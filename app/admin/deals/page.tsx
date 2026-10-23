@@ -90,6 +90,9 @@ interface Prospect {
   acceptsResellers: string;
   minOrder: string;
   termsNotes: string;
+  tradeShow: string;
+  booth: string;
+  showStatus: string;
   products: Product[];
   emails: OutreachEmail[];
   updatedAt: string;
@@ -137,6 +140,20 @@ const MAP_OPTIONS: [string, string][] = [
 const RESELLER_OPTIONS: [string, string][] = [
   ["", "Unknown"], ["yes", "Yes"], ["maybe", "Maybe"], ["no", "No"],
 ];
+
+const SHOW_STATUS_OPTIONS: [string, string][] = [
+  ["", "—"], ["to_visit", "To visit"], ["met", "Met"], ["no_show", "No-show"], ["skip", "Skip"],
+];
+const SHOW_STATUS_LABEL: Record<string, string> = Object.fromEntries(SHOW_STATUS_OPTIONS);
+const SHOW_STATUS_COLOR: Record<string, string> = {
+  to_visit: "#1D4ED8", met: "#15803D", no_show: "#B45309", skip: "#9CA3AF",
+};
+
+// Booths look like "35043, 80025" or "SV347" — sort by the first number found.
+const boothSortKey = (b: string) => {
+  const m = b.match(/\d+/);
+  return m ? parseInt(m[0], 10) : 9e9;
+};
 
 // None/thin presence on a channel is the opportunity; unknown counts as no signal.
 const gapValue = (v: string) => (v === "none" ? 1 : v === "thin" ? 0.5 : 0);
@@ -629,8 +646,8 @@ function Computed({ product, d }: { product: Product; d: ScoreDetail }) {
 
 // ─── Detail panel ────────────────────────────────────────────────────────────
 
-function ProspectDetail({ prospect, templates, token, keepaOn, onUpdate, onReload, onDelete, onClose }: {
-  prospect: Prospect; templates: EmailTemplate[]; token: string; keepaOn: boolean;
+function ProspectDetail({ prospect, templates, shows, token, keepaOn, onUpdate, onReload, onDelete, onClose }: {
+  prospect: Prospect; templates: EmailTemplate[]; shows: string[]; token: string; keepaOn: boolean;
   onUpdate: (p: Prospect) => void; onReload: () => Promise<void>; onDelete: () => void; onClose: () => void;
 }) {
   const [notes, setNotes] = useState(prospect.notes);
@@ -760,6 +777,25 @@ function ProspectDetail({ prospect, templates, token, keepaOn, onUpdate, onReloa
         />
       </label>
 
+      {/* Trade show */}
+      <div style={{ marginTop: 14, padding: 12, background: "#F9FAFB", border: `1px solid ${border}`, borderRadius: 10 }}>
+        <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", color: muted, margin: "0 0 10px" }}>
+          Trade show
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr", gap: 10 }}>
+          <label key={`show-${prospect.id}-${prospect.tradeShow}`} style={{ display: "block", fontSize: 12 }}>
+            <span style={{ color: muted, fontWeight: 600 }}>Show</span>
+            <input list="deal-shows" defaultValue={prospect.tradeShow} placeholder="e.g. SEMA 2026"
+              onBlur={(e) => { const v = e.target.value.trim(); if (v !== prospect.tradeShow) patch({ tradeShow: v, ...(v && !prospect.showStatus ? { showStatus: "to_visit" } : {}) }); }}
+              style={{ width: "100%", padding: "6px 8px", fontSize: 13, border: `1px solid ${border}`, borderRadius: 6, marginTop: 3, boxSizing: "border-box", fontFamily: "inherit", background: "#fff" }}
+            />
+            <datalist id="deal-shows">{shows.map((s) => <option key={s} value={s} />)}</datalist>
+          </label>
+          {field("Booth", "booth")}
+          {selectField("Visit status", "showStatus", SHOW_STATUS_OPTIONS)}
+        </div>
+      </div>
+
       {/* Brand HQ */}
       <div style={{ marginTop: 14, padding: 12, background: "#F9FAFB", border: `1px solid ${border}`, borderRadius: 10 }}>
         <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", color: muted, margin: "0 0 2px" }}>
@@ -841,6 +877,8 @@ export default function DealDeskPage() {
   const [angleFilter, setAngleFilter] = useState("all");
   const [channelFilter, setChannelFilter] = useState("all");
   const [mapFilter, setMapFilter] = useState("all");
+  const [showFilter, setShowFilter] = useState("all");
+  const [showStatusFilter, setShowStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("fit");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
@@ -897,6 +935,7 @@ export default function DealDeskPage() {
     score: (a, b) => bestScore(b) - bestScore(a),
     updated: (a, b) => +new Date(b.updatedAt) - +new Date(a.updatedAt),
     name: (a, b) => a.brandName.localeCompare(b.brandName),
+    booth: (a, b) => boothSortKey(a.booth) - boothSortKey(b.booth) || a.brandName.localeCompare(b.brandName),
     followup: (a, b) => followUp(a, templates).sort - followUp(b, templates).sort,
     targets: (a, b) =>
       gapScore(b) - gapScore(a) || bestScore(b) - bestScore(a) ||
@@ -907,7 +946,11 @@ export default function DealDeskPage() {
     .filter((p) => angleFilter === "all" || (p.angle || "channel") === angleFilter)
     .filter((p) => channelFilter === "all" || matchesChannelFilter(p, channelFilter))
     .filter((p) => mapFilter === "all" || (p.mapPolicy || "unknown") === mapFilter)
+    .filter((p) => showFilter === "all" || (showFilter === "none" ? !p.tradeShow : p.tradeShow === showFilter))
+    .filter((p) => showStatusFilter === "all" || (p.showStatus || "") === showStatusFilter)
     .slice().sort(SORTS[sortBy] ?? SORTS.fit);
+  const shows = Array.from(new Set(prospects.map((p) => p.tradeShow).filter(Boolean))).sort();
+  const inShow = showFilter !== "all" && showFilter !== "none";
   const selected = prospects.find((p) => p.id === selectedId) ?? null;
 
   return (
@@ -958,8 +1001,29 @@ export default function DealDeskPage() {
             <option value="none">MAP: none</option>
             <option value="unknown">MAP: unknown</option>
           </select>
+          {shows.length > 0 && (
+            <select value={showFilter}
+              onChange={(e) => { setShowFilter(e.target.value); setShowStatusFilter("all"); if (e.target.value !== "all" && e.target.value !== "none") setSortBy("booth"); }}
+              style={{ fontSize: 12, border: `1px solid ${border}`, borderRadius: 8, padding: "6px 8px", color: muted, background: "#fff" }}>
+              <option value="all">All shows</option>
+              {shows.map((s) => (
+                <option key={s} value={s}>{s} ({prospects.filter((p) => p.tradeShow === s).length})</option>
+              ))}
+              <option value="none">No show</option>
+            </select>
+          )}
+          {inShow && (
+            <select value={showStatusFilter} onChange={(e) => setShowStatusFilter(e.target.value)}
+              style={{ fontSize: 12, border: `1px solid ${border}`, borderRadius: 8, padding: "6px 8px", color: muted, background: "#fff" }}>
+              <option value="all">Any visit status</option>
+              {SHOW_STATUS_OPTIONS.filter(([v]) => v).map(([v, l]) => (
+                <option key={v} value={v}>{l} ({prospects.filter((p) => p.tradeShow === showFilter && p.showStatus === v).length})</option>
+              ))}
+            </select>
+          )}
           <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
             style={{ fontSize: 12, border: `1px solid ${border}`, borderRadius: 8, padding: "6px 8px", color: muted, background: "#fff" }}>
+            {inShow && <option value="booth">Sort: Booth (walking order)</option>}
             <option value="followup">Sort: Follow-up due</option>
             <option value="targets">Sort: Best targets</option>
             <option value="fit">Sort: Fit rank</option>
@@ -1002,7 +1066,7 @@ export default function DealDeskPage() {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
                 <tr style={{ background: "#F9FAFB", borderBottom: `1px solid ${border}` }}>
-                  {["#", "Brand", "Channels", "Stage", "Next follow-up", "Products", "Best"].map((h) => (
+                  {["#", "Brand", ...(inShow ? ["Booth", "Visit"] : []), "Channels", "Stage", "Next follow-up", "Products", "Best"].map((h) => (
                     <th key={h} style={{ padding: "9px 12px", textAlign: "left", fontSize: 11, color: muted, fontWeight: 700 }}>{h}</th>
                   ))}
                 </tr>
@@ -1026,6 +1090,12 @@ export default function DealDeskPage() {
                         </span>
                         <div style={{ fontSize: 11, color: muted, fontWeight: 400 }}>{p.category || "—"}</div>
                       </td>
+                      {inShow && (<>
+                        <td style={{ padding: "9px 12px", fontSize: 12, color: navy, fontWeight: 600, whiteSpace: "nowrap" }}>{p.booth || "—"}</td>
+                        <td style={{ padding: "9px 12px", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap", color: SHOW_STATUS_COLOR[p.showStatus] ?? muted }}>
+                          {SHOW_STATUS_LABEL[p.showStatus] || "—"}
+                        </td>
+                      </>)}
                       <td style={{ padding: "9px 12px" }}><GapPills p={p} /></td>
                       <td style={{ padding: "9px 12px", color: muted }}>{STAGE_LABEL[p.stage] ?? p.stage}</td>
                       <td style={{ padding: "9px 12px", fontSize: 12, fontWeight: 700, color: fu.color, whiteSpace: "nowrap" }}>{fu.label}</td>
@@ -1061,7 +1131,7 @@ export default function DealDeskPage() {
               <div style={{ padding: 20 }}>
                 <ProspectDetail
                   key={selected.id}
-                  prospect={selected} templates={templates} token={token} keepaOn={keepaOn}
+                  prospect={selected} templates={templates} shows={shows} token={token} keepaOn={keepaOn}
                   onUpdate={(np) => setProspects((ps) => ps.map((x) => x.id === np.id ? np : x))}
                   onReload={reloadSilent}
                   onClose={() => setSelectedId(null)}
@@ -1090,6 +1160,7 @@ const CORE_FIELDS: { key: string; label: string; required?: boolean }[] = [
   { key: "category", label: "Category" },
   { key: "contactEmail", label: "Contact email" },
   { key: "fitRank", label: "Fit rank" },
+  { key: "booth", label: "Booth" },
 ];
 
 function ImportPanel({ token, onImported, onClose }: {
@@ -1100,6 +1171,7 @@ function ImportPanel({ token, onImported, onClose }: {
   const [map, setMap] = useState<Record<string, string>>({});
   const [noteCols, setNoteCols] = useState<string[]>([]);
   const [preset, setPreset] = useState(false);
+  const [tradeShow, setTradeShow] = useState("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ created: number; skipped: number } | null>(null);
   const [err, setErr] = useState("");
@@ -1140,6 +1212,7 @@ function ImportPanel({ token, onImported, onClose }: {
       category: map.category ? r[map.category] : "",
       contactEmail: map.contactEmail ? r[map.contactEmail] : "",
       fitRank: map.fitRank ? r[map.fitRank] : "",
+      booth: map.booth ? r[map.booth] : "",
       notes: notes ? `${preset ? "SmartScout import" : "CSV import"} — ${notes}` : "",
     };
   };
@@ -1149,7 +1222,7 @@ function ImportPanel({ token, onImported, onClose }: {
 
   async function doImport() {
     setBusy(true); setErr("");
-    const payload = { rows: rows.map(buildRow), source: preset ? "smartscout" : "import" };
+    const payload = { rows: rows.map(buildRow), source: preset ? "smartscout" : "import", tradeShow: tradeShow.trim() };
     const res = await fetch("/api/admin/deals/import", {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-admin-token": token },
@@ -1181,6 +1254,13 @@ function ImportPanel({ token, onImported, onClose }: {
 
       {headers.length > 0 && !result && (
         <>
+          <label style={{ display: "block", fontSize: 12, marginBottom: 12, maxWidth: 360 }}>
+            <span style={{ color: muted, fontWeight: 600 }}>
+              Trade show <span style={{ fontWeight: 400 }}>— optional; tags every imported brand and marks it &ldquo;to visit&rdquo;</span>
+            </span>
+            <input value={tradeShow} onChange={(e) => setTradeShow(e.target.value)} placeholder="e.g. SEMA 2026"
+              style={{ width: "100%", padding: "6px 8px", fontSize: 13, border: `1px solid ${border}`, borderRadius: 6, marginTop: 3, boxSizing: "border-box", fontFamily: "inherit" }} />
+          </label>
           <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
             <button onClick={applyPreset}
               style={{ background: preset ? navy : "#F3F4F6", color: preset ? "#fff" : muted, border: "none", borderRadius: 6, padding: "5px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>

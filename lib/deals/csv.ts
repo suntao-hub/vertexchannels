@@ -54,6 +54,7 @@ export const SMARTSCOUT_HINTS: Record<string, string[]> = {
   category: ["subcategory", "sub category", "category", "main category"],
   contactEmail: ["email", "contact email", "e-mail"],
   fitRank: ["fit rank", "rank", "priority"],
+  booth: ["booth number", "booth #", "booth no", "booth"],
 };
 
 export function autoMap(headers: string[], hints: Record<string, string[]>): Record<string, string> {

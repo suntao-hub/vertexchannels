@@ -67,6 +67,10 @@ model BrandProspect {
   acceptsResellers String @default("") // "" unknown | yes | maybe | no
   minOrder         String @default("")
   termsNotes       String @default("")
+  // Trade shows — which show a brand was sourced for, where to find them, and visit outcome
+  tradeShow        String @default("") // free text, e.g. "SEMA 2026"
+  booth            String @default("")
+  showStatus       String @default("") // "" | to_visit | met | no_show | skip
   products      ProspectProduct[]
   emails        OutreachEmail[]
   createdAt     DateTime @default(now())
