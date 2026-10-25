@@ -5,6 +5,7 @@ import { OutreachSection, OUTCOME_LABEL, type OutreachEmail, type EmailTemplate 
 import { parseCsv, parseTabText, looksTabSeparated, autoMap, SMARTSCOUT_HINTS } from "@/lib/deals/csv";
 import { readSession } from "@/lib/admin/session";
 import { buildInstantlyCsv } from "@/lib/deals/instantlyExport";
+import { forTrack, readyToSend, SEGMENTS } from "@/lib/deals/tracks";
 
 const navy = "#0A2333";
 const orange = "#F97316";
@@ -217,7 +218,7 @@ function followUp(p: Prospect, templates: EmailTemplate[]): FollowUp {
   }
 
   const seq = templates
-    .filter((t) => t.context === "prospect" && t.step > 0 && t.active)
+    .filter((t) => t.context === "prospect" && t.step > 0 && t.active && forTrack(t, p.angle))
     .sort((a, b) => a.step - b.step);
   const sentAt = seq.map((t) => emails.find((e) => e.templateKey === t.key && isSent(e) && e.sentAt)?.sentAt ?? null);
   let last = -1;
@@ -830,7 +831,7 @@ function ProspectDetail({ prospect, templates, shows, token, keepaOn, onUpdate, 
       <OutreachSection
         ownerKind="prospect" ownerId={prospect.id} contactEmail={prospect.contactEmail}
         emails={prospect.emails ?? []}
-        templates={templates.filter((t) => t.context === "prospect")}
+        templates={templates.filter((t) => t.context === "prospect" && forTrack(t, prospect.angle))}
         token={token}
         onEmailsChange={(emails) => onUpdate({ ...prospect, emails })}
         onOwnerRefetch={onReload}
@@ -956,6 +957,10 @@ export default function DealDeskPage() {
     .slice().sort(SORTS[sortBy] ?? SORTS.fit);
   const shows = Array.from(new Set(prospects.map((p) => p.tradeShow).filter(Boolean))).sort();
   const inShow = showFilter !== "all" && showFilter !== "none";
+  const segCounts = SEGMENTS.map((s) => {
+    const mine = prospects.filter((p) => (p.angle || "channel") === s.key);
+    return { ...s, total: mine.length, ready: mine.filter(readyToSend).length };
+  });
   const selected = prospects.find((p) => p.id === selectedId) ?? null;
 
   return (
@@ -973,6 +978,31 @@ export default function DealDeskPage() {
       }
     >
       <div style={{ maxWidth: 1240, margin: "0 auto", padding: "24px" }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 12 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: muted, textTransform: "uppercase", letterSpacing: "0.06em", marginRight: 2 }}>Offer mode</span>
+          {[{ key: "all", label: "All modes", total: prospects.length, ready: -1, coldEmail: true }, ...segCounts].map((s) => {
+            const on = angleFilter === s.key;
+            return (
+              <button key={s.key} onClick={() => setAngleFilter(s.key)}
+                title={s.key === "all" ? "" : s.coldEmail ? "Ready = a valid email and something to open with" : "Never cold emailed"}
+                style={{
+                  background: on ? navy : "#fff", color: on ? "#fff" : navy,
+                  border: `1px solid ${on ? navy : border}`, borderRadius: 16, padding: "5px 12px",
+                  fontSize: 12, fontWeight: 700, cursor: "pointer",
+                }}>
+                {s.label} · {s.total}
+                {s.ready >= 0 && s.coldEmail && (
+                  <span style={{ marginLeft: 6, fontWeight: 600, color: on ? "#BBF7D0" : s.ready > 0 ? "#15803D" : "#B45309" }}>
+                    {s.ready} ready
+                  </span>
+                )}
+              </button>
+            );
+          })}
+          <a href="/admin/sequences" style={{ marginLeft: "auto", fontSize: 12, fontWeight: 700, color: orange, textDecoration: "none" }}>
+            View sequences →
+          </a>
+        </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 18 }}>
           {["all", ...STAGES].map((s) => (
             <button key={s} onClick={() => setStageFilter(s)}
@@ -984,13 +1014,8 @@ export default function DealDeskPage() {
               {s === "all" ? `All (${prospects.length})` : `${STAGE_LABEL[s]} (${prospects.filter((p) => p.stage === s).length})`}
             </button>
           ))}
-          <select value={angleFilter} onChange={(e) => setAngleFilter(e.target.value)}
-            style={{ marginLeft: "auto", fontSize: 12, border: `1px solid ${border}`, borderRadius: 8, padding: "6px 8px", color: muted, background: "#fff" }}>
-            <option value="all">All angles</option>
-            {ANGLES.map((a) => <option key={a} value={a}>{ANGLE_LABEL[a]}</option>)}
-          </select>
           <select value={channelFilter} onChange={(e) => setChannelFilter(e.target.value)}
-            style={{ fontSize: 12, border: `1px solid ${border}`, borderRadius: 8, padding: "6px 8px", color: muted, background: "#fff" }}>
+            style={{ marginLeft: "auto", fontSize: 12, border: `1px solid ${border}`, borderRadius: 8, padding: "6px 8px", color: muted, background: "#fff" }}>
             <option value="all">All channels</option>
             <option value="any">Missing any channel</option>
             <option value="walmart">Missing Walmart</option>

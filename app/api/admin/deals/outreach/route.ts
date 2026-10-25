@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
     values = prospectMergeValues({
       brand: p.brandName, contact: p.contactName, category: p.category,
       website: p.website, opening: p.openingLine,
+      show: p.tradeShow, booth: p.booth,
     });
     toEmail = p.contactEmail;
     data.prospectId = p.id;

@@ -114,6 +114,55 @@ If anything shifts — a new channel push, an inventory position you need to mov
 {{yourName}}
 {{company}}`,
   },
+  // ── Audit track: managed-services prospects (Amazon / seller-control problems).
+  // Used for brands whose offer mode is "Managed services". {{opening}} is the
+  // per-brand finding, or a factual show hook when none is set.
+  {
+    key: "audit_1",
+    context: "prospect",
+    name: "Audit: Initial outreach",
+    step: 1,
+    waitDays: 0,
+    subject: "{{brand}} on Amazon: a few things I noticed",
+    body: `Hi {{firstName}},
+
+{{opening}}
+
+I'm {{yourName}} with {{company}}. I run Amazon and marketplace accounts for hard-goods brands.
+
+I can send you a one-page written read on where the listings, sellers, and channel gaps for {{brand}} may be costing you sales. It's free. Would that be useful?
+
+{{yourName}}
+{{company}} — {{site}}`,
+  },
+  {
+    key: "audit_2",
+    context: "prospect",
+    name: "Audit: Follow-up 1",
+    step: 2,
+    waitDays: 4,
+    subject: "Re: {{brand}} on Amazon: a few things I noticed",
+    body: `Hi {{firstName}},
+
+Following up on my note. The one-page read is free and takes me about a day to put together. If it's easier, tell me who handles {{brand}}'s Amazon listings and I'll send it to them instead.
+
+{{yourName}}
+{{company}}`,
+  },
+  {
+    key: "audit_3",
+    context: "prospect",
+    name: "Audit: Follow-up 2 (close)",
+    step: 3,
+    waitDays: 6,
+    subject: "Re: {{brand}} on Amazon: a few things I noticed",
+    body: `Hi {{firstName}},
+
+Last note from me. If marketplace cleanup isn't a priority right now, I'll check back after the holidays.
+
+{{yourName}}
+{{company}}`,
+  },
 ];
 
 export const LEAD_TEMPLATES: TemplateSeed[] = [
@@ -201,7 +250,7 @@ export const DEFAULT_TEMPLATES: TemplateSeed[] = [...PROSPECT_TEMPLATES, ...LEAD
 function envDefaults(): Record<string, string> {
   const site = process.env.OUTREACH_SITE || "https://vertexchannels.com";
   return {
-    yourName: process.env.OUTREACH_SENDER_NAME || "Suntao",
+    yourName: process.env.OUTREACH_SENDER_NAME || "Suntao Dung",
     company: process.env.OUTREACH_COMPANY || "Vertex Channels",
     title: process.env.OUTREACH_SENDER_TITLE || "Partnerships",
     site,
@@ -216,6 +265,8 @@ export interface ProspectMergeInput {
   category: string;
   website: string;
   opening: string;
+  show?: string;
+  booth?: string;
 }
 
 export interface LeadMergeInput {
@@ -229,9 +280,17 @@ export function prospectMergeValues(p: ProspectMergeInput): Record<string, strin
     ...envDefaults(),
     brand: p.brand || "your brand",
     contact: p.contact?.trim() || "there",
+    firstName: p.contact?.trim().split(/\s+/)[0] || "there",
     category: p.category?.trim() || "product",
     website: p.website || "",
-    opening: p.opening?.trim() || "",
+    // opening line wins; otherwise a factual show hook that claims no meeting
+    opening:
+      p.opening?.trim() ||
+      (p.show?.trim()
+        ? `I saw ${p.brand || "your brand"} was exhibiting at ${p.show.trim()}${p.booth?.trim() ? ` (booth ${p.booth.trim()})` : ""}.`
+        : ""),
+    show: p.show?.trim() || "",
+    booth: p.booth?.trim() || "",
   };
 }
 

@@ -46,6 +46,8 @@ const SEGMENT: Record<string, string> = {
 const ROLE = /^(info|sales|support|contact|hello|admin|office|service|orders|help|customerservice)@/i;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+export const isValidEmail = (v: string) => EMAIL.test(v.trim());
+
 const HEADERS = [
   "email", "first_name", "last_name", "company_name", "website", "phone",
   "personalization", "trade_show", "booth", "segment", "category", "deal_desk_id",
