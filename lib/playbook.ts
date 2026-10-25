@@ -143,7 +143,7 @@ export const PLAYBOOK: Playbook = {
           t: "table",
           head: ["When", "Do"],
           rows: [
-            ["Late Oct to Nov 6", "Warm-up runs on the .co mailbox (started late October). Find named contacts, verify emails, confirm each opening line. Run an inbox-placement test around day 10 to 12. If it lands in spam, do not send."],
+            ["Late Oct to Nov 6", "Warm-up runs on the .co mailbox (started late October). Find named contacts, verify emails, confirm each opening line. Move DMARC to p=quarantine. Around Nov 5 to 6, send a seed test to a Gmail and an Outlook inbox you control. If it lands in spam, do not send."],
             ["Nov 10", "First small batch: 5 to 10 a day, services brands only, with the hand-written opening line. Send Tuesday to Thursday mornings. Skip Nov 11 (Veterans Day)."],
             ["Nov 16", "Follow-up 1 for the first batch. Day 4 falls on a Saturday, so it goes Monday."],
             ["Nov 17 onward", "If bounces stay under 2% and replies look normal, add 5 a day. Reach 30 a day around Nov 24."],
@@ -260,7 +260,7 @@ export const PLAYBOOK: Playbook = {
           t: "cols",
           boxes: [
             { title: "Ready the list", items: ["Named contact and verified email for each services brand", "Opening line re-checked the day before", "Export filtered to SEMA 2026 and Managed services"] },
-            { title: "Ready the sender", items: ["Warm-up running at least 2 weeks", "Inbox-placement test passed on the .co mailbox", "Tracking off, plain text, footer with address and opt-out", "Daily limit 5 to 10, weekdays only"] },
+            { title: "Ready the sender", items: ["Warm-up running at least 2 weeks, and left on", "DMARC on the .co domain moved from p=none to p=quarantine", "Seed test (around Nov 5 to 6) from the .co mailbox to a Gmail and an Outlook inbox you control lands in the inbox, not spam", "Gmail Postmaster Tools set up for the .co domain, with spam rate under 0.1%", "Tracking off, plain text, footer with address and opt-out", "Daily limit 5 to 10, weekdays only"] },
             { title: "Confirm", items: ["You can cite the SFA results publicly", "Sender name is Suntao Dung everywhere", "A delivery plan for the free read within 2 business days"] },
           ],
         },
@@ -280,6 +280,7 @@ export const PLAYBOOK: Playbook = {
             { date: "Oct 26", text: "The .co warm-up started. First send stays Nov 10, but as a small batch to the services brands." },
             { date: "Oct 26", text: "SEMA brands segmented: 7 services, 4 drop ship, 1 excess." },
             { date: "Oct 26", text: "Segment tabs with ready counts and a Sequences page (per-segment emails, copy for Instantly, per-segment export) added to the admin." },
+            { date: "Oct 26", text: "Warm-up kept as insurance, not the plan: list quality, authentication, low volume and real replies matter more. Added DMARC p=quarantine, a seed test and Gmail Postmaster monitoring to the pre-send checklist." },
             { date: "Oct 26", text: "Screening assist added: Keepa Amazon check per brand or in batches of 10, a suggested offer mode, a draft opening line, and marketplace search links. Walmart, eBay and Newegg presence stays manual." },
           ],
         },
