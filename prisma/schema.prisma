@@ -193,3 +193,18 @@ model TargetSeller {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+// Dated action plan. Seeded from lib/tasks.ts (by key) and editable in /admin/tasks.
+model Task {
+  id        String    @id @default(cuid())
+  key       String?   @unique // set on seeded plan tasks so they can be restored without duplicates
+  title     String
+  detail    String    @default("")
+  area      String    @default("outreach") // outreach | services | dropship | deliverability | site | legal | network | admin
+  dueDate   DateTime?
+  status    String    @default("todo") // todo | done
+  blocker   Boolean   @default(false) // must be done before the first send (Nov 10)
+  doneAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}

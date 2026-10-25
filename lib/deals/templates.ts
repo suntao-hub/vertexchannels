@@ -114,6 +114,63 @@ If anything shifts — a new channel push, an inventory position you need to mov
 {{yourName}}
 {{company}}`,
   },
+  // ── Drop-ship track: brands with empty channels and US stock. Walmart first;
+  // Woot appears in email 2 only. {{opening}} comes from the screening assist or
+  // falls back to the show hook.
+  {
+    key: "dropship_1",
+    context: "prospect",
+    name: "Drop ship: Initial outreach",
+    step: 1,
+    waitDays: 0,
+    subject: "{{brand}} on Walmart",
+    body: `Hi {{firstName}},
+
+{{opening}}
+
+I'm {{yourName}} with {{company}}. We're taking on a small number of hard-goods brands for Walmart this quarter as an authorized reseller. It costs you nothing and changes nothing about how you work: we list your products at or above your MAP, and when an order comes in, you ship it straight to the customer.
+
+Do you ship single orders to customers today? If so, would a short call be worth it?
+
+{{yourName}}
+{{company}} — {{site}}`,
+  },
+  {
+    key: "dropship_2",
+    context: "prospect",
+    name: "Drop ship: Follow-up 1",
+    step: 2,
+    waitDays: 4,
+    subject: "Re: {{brand}} on Walmart",
+    body: `Hi {{firstName}},
+
+Following up. Here's how it works in practice:
+- You send us the products you want listed, with your wholesale price and MAP.
+- We handle the listings, pricing, customer messages and returns.
+- You ship each order direct, blind packed, and send tracking the same day.
+- We put it all in a short written agreement before anything goes live.
+
+If you also have aged stock to move, we can run a time-limited Woot event with you shipping those orders too.
+
+Who on your team handles marketplace orders? I'm happy to send the details to them directly.
+
+{{yourName}}
+{{company}}`,
+  },
+  {
+    key: "dropship_3",
+    context: "prospect",
+    name: "Drop ship: Follow-up 2 (close)",
+    step: 3,
+    waitDays: 6,
+    subject: "Re: {{brand}} on Walmart",
+    body: `Hi {{firstName}},
+
+Last note from me. If more channels aren't a priority this quarter, I'll check back in the new year. If someone else handles marketplaces, point me their way.
+
+{{yourName}}
+{{company}}`,
+  },
   // ── Audit track: managed-services prospects (Amazon / seller-control problems).
   // Used for brands whose offer mode is "Managed services". {{opening}} is the
   // per-brand finding, or a factual show hook when none is set.

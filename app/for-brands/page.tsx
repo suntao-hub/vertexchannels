@@ -9,26 +9,68 @@ const muted = "#6B7280";
 
 export const metadata: Metadata = {
   title: "For Brands — Vertex Channels",
-  description: "How Vertex Channels runs your marketplace channels — Amazon Seller Central operated for you, Walmart, eBay and Newegg as your authorized reseller, and excess inventory cleared — on a share of the revenue we add.",
+  description:
+    "Vertex Channels works with hard-goods brands two ways: we fix and run your marketplace accounts, or we list your products on Walmart as an authorized reseller while you ship the orders. Start with a free read of your listings.",
 };
 
+const PATHS = [
+  {
+    tag: "Already selling on marketplaces",
+    title: "We fix and run your marketplace accounts",
+    body: "Start with a free one-page read of your listings, sellers, and channel gaps. If it shows money on the table, we can run it for you.",
+    points: [
+      "Catalog and listing cleanup, advertising, pricing, and buy-box defense",
+      "Seller control: unauthorized sellers, MAP violations, wrong brand or category on a listing",
+      "FBA reimbursement recovery, paid as a share of what comes back",
+      "Your account, your data, your customers. You approve the channels and the pricing floor.",
+    ],
+    cta: "Get your free read",
+  },
+  {
+    tag: "Not on Walmart yet",
+    title: "Sell on Walmart with no cost to you",
+    body: "We list your products as an authorized reseller, at or above your MAP. You keep shipping the way you do today, one order at a time.",
+    points: [
+      "We handle the listings, pricing, customer messages, and returns",
+      "You ship each order direct, blind packed, and send tracking the same day",
+      "You are paid after the marketplace pays us, under a short written agreement",
+      "We are starting with Walmart and adding channels as the program grows",
+    ],
+    cta: "Become a Walmart partner brand",
+  },
+];
+
 const STEPS = [
-  { n: "01", t: "We open the account", b: "We set up as your authorized reseller, build listings for each marketplace, and wire in fulfillment — WFS, our 3PL, or yours." },
-  { n: "02", t: "We run the channels", b: "Pricing, advertising, inventory flow, compliance, customer messages. You approve the channels and the pricing floor; we own the day-to-day." },
-  { n: "03", t: "You get one report", b: "One dashboard, one point of contact, one monthly summary — sales and payouts by SKU by channel." },
+  { n: "01", t: "You send the products", b: "The items you want listed, with your wholesale price and your MAP. We confirm what's workable and agree the terms in writing before anything goes live." },
+  { n: "02", t: "We list and run it", b: "Listings, pricing at or above MAP, customer messages, and returns are ours. You approve the channel and the pricing floor." },
+  { n: "03", t: "You ship each order", b: "Orders come to you with the customer's details. You ship within 2 business days, blind packed, and tell us the tracking number the same day." },
+];
+
+const ASKS = [
+  "Product in US stock that you can ship as single orders",
+  "Shipping within 2 business days, with tracking",
+  "Stock levels updated at least daily",
+  "A MAP policy you want respected, or willingness to set one",
+  "An authorization letter so we can list your brand on each channel",
+];
+
+const KEEP = [
+  "Your brand, your pricing floor, and the channels you approve",
+  "Your customer experience: blind packing, no pricing or invoices in the box",
+  "The right to pause or end the program on 30 days' notice, with open orders fulfilled",
 ];
 
 const FIT = [
-  "An established brand with real volume on Amazon and little or nothing on Walmart, eBay, or Newegg",
-  "Tools, hardware, automotive accessories, garage & shop equipment, material handling",
-  "MAP policy you want enforced, or unauthorized sellers you want cleaned up",
-  "Excess, aged, or discontinued inventory that's only costing you storage fees",
+  "Hard goods: tools, automotive, garage and shop equipment, material handling, home improvement hardware",
+  "A US warehouse and the ability to ship single orders",
+  "Little or no presence on Walmart, or listings and sellers that have gotten messy",
+  "Products that don't need certifications you don't already hold",
 ];
 
 function Section({ id, bg, children }: { id?: string; bg?: string; children: React.ReactNode }) {
   return (
     <section id={id} style={{ background: bg ?? "#fff", padding: "72px 24px" }}>
-      <div style={{ maxWidth: 900, margin: "0 auto" }}>{children}</div>
+      <div style={{ maxWidth: 940, margin: "0 auto" }}>{children}</div>
     </section>
   );
 }
@@ -41,11 +83,32 @@ function Kicker({ children }: { children: React.ReactNode }) {
   );
 }
 
+function H2({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 style={{ fontSize: "clamp(22px, 3.5vw, 32px)", fontWeight: 800, margin: "0 0 20px", lineHeight: 1.25, maxWidth: 640 }}>
+      {children}
+    </h2>
+  );
+}
+
+function List({ items }: { items: string[] }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {items.map((f) => (
+        <div key={f} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "#fff", border: `1px solid ${border}`, borderRadius: 10, padding: "13px 16px" }}>
+          <span style={{ color: orange, fontWeight: 800, flexShrink: 0 }}>→</span>
+          <span style={{ fontSize: 14, lineHeight: 1.6 }}>{f}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function ForBrands() {
   return (
     <>
       <header style={{ background: "#fff", borderBottom: `1px solid ${border}` }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ maxWidth: 940, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <a href="/" style={{ display: "flex", gap: 2 }}>
             <span style={{ fontSize: 20, fontWeight: 800, color: navy }}>Vertex</span>
             <span style={{ fontSize: 20, fontWeight: 800, color: orange }}>Channels</span>
@@ -58,26 +121,46 @@ export default function ForBrands() {
 
       <section style={{ background: navy, padding: "80px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
         <ChannelMesh opacity={0.8} />
-        <div style={{ maxWidth: 720, margin: "0 auto", position: "relative", zIndex: 1 }}>
+        <div style={{ maxWidth: 740, margin: "0 auto", position: "relative", zIndex: 1 }}>
           <span style={{ display: "inline-block", background: orange, color: "#fff", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", padding: "4px 14px", borderRadius: 20, marginBottom: 24 }}>
-            For Brands
+            For hard-goods brands
           </span>
           <h1 style={{ fontSize: "clamp(30px, 5vw, 46px)", fontWeight: 800, color: "#fff", lineHeight: 1.15, margin: "0 0 20px" }}>
-            You own the brand.<br /><span style={{ color: orange }}>We run the channels.</span>
+            More sales on the marketplaces,<br /><span style={{ color: orange }}>without adding to your team.</span>
           </h1>
-          <p style={{ fontSize: 18, color: "#CBD5E1", lineHeight: 1.7, margin: 0 }}>
-            Vertex Channels runs Walmart, eBay, and Newegg as your authorized reseller, operates your Amazon
-            Seller Central on your behalf, and moves the excess inventory that&apos;s costing you storage fees.
-            You keep control of your brand; we work on a share of the revenue we add.
+          <p style={{ fontSize: 18, color: "#CBD5E1", lineHeight: 1.7, margin: "0 0 30px" }}>
+            Vertex Channels works with brands two ways. We fix and run your marketplace accounts, or we list your
+            products on Walmart as an authorized reseller while you ship the orders.
           </p>
+          <a href="/#contact" style={{ display: "inline-block", background: orange, color: "#fff", padding: "14px 34px", fontSize: 16, fontWeight: 700, borderRadius: 10, textDecoration: "none" }}>
+            Get your free marketplace read →
+          </a>
         </div>
       </section>
 
       <Section bg={cream}>
-        <Kicker>What we do</Kicker>
-        <h2 style={{ fontSize: "clamp(22px, 3.5vw, 32px)", fontWeight: 800, margin: "0 0 28px" }}>
-          A full channel operation, run for you
-        </h2>
+        <Kicker>Two ways to work together</Kicker>
+        <H2>Pick the one that matches where you are</H2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 18 }}>
+          {PATHS.map((p) => (
+            <div key={p.title} style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 12, padding: "24px 24px 22px", display: "flex", flexDirection: "column", gap: 12 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: muted, margin: 0 }}>{p.tag}</p>
+              <h3 style={{ fontSize: 20, fontWeight: 800, color: navy, margin: 0, lineHeight: 1.25 }}>{p.title}</h3>
+              <p style={{ fontSize: 14, color: muted, lineHeight: 1.7, margin: 0 }}>{p.body}</p>
+              <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 8, fontSize: 14, lineHeight: 1.6 }}>
+                {p.points.map((x) => <li key={x}>{x}</li>)}
+              </ul>
+              <a href="/#contact" style={{ marginTop: "auto", alignSelf: "flex-start", background: navy, color: "#fff", padding: "10px 20px", fontSize: 14, fontWeight: 700, borderRadius: 8, textDecoration: "none" }}>
+                {p.cta} →
+              </a>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section>
+        <Kicker>How the Walmart program works</Kicker>
+        <H2>Three steps, and you stay in control</H2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 32 }}>
           {STEPS.map((s) => (
             <div key={s.n}>
@@ -89,88 +172,66 @@ export default function ForBrands() {
         </div>
       </Section>
 
-      <Section>
-        <Kicker>The model</Kicker>
-        <h2 style={{ fontSize: "clamp(22px, 3.5vw, 32px)", fontWeight: 800, margin: "0 0 16px" }}>
-          Rev-share, not a retainer
-        </h2>
-        <p style={{ fontSize: 16, color: muted, lineHeight: 1.8, margin: "0 0 14px" }}>
-          We work on a share of the incremental revenue we generate on the channels we run for you —
-          no retainer, no long lock-in. If a channel isn&apos;t earning its margin, we tell you and we
-          shut it off. Exact terms depend on the channels and the scope; we&apos;ll put a number in
-          front of you after the first call.
-        </p>
-        <p style={{ fontSize: 16, color: muted, lineHeight: 1.8, margin: 0 }}>
-          For excess inventory, we list your overstock and end-of-life stock on the right clearance
-          channels — you ship each order direct as it sells and we send the label. Found revenue on stock
-          that was only costing you storage, with no wholesale discount to take.
-        </p>
-      </Section>
-
       <Section bg={cream}>
-        <Kicker>Already on Amazon</Kicker>
-        <h2 style={{ fontSize: "clamp(22px, 3.5vw, 32px)", fontWeight: 800, margin: "0 0 20px" }}>
-          We run your Seller Central account for you
-        </h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 10, padding: "16px 18px" }}>
-            <p style={{ fontSize: 15, fontWeight: 700, margin: "0 0 6px", color: navy }}>Day-to-day management</p>
-            <p style={{ fontSize: 14, color: muted, lineHeight: 1.6, margin: 0 }}>
-              Advertising, catalog and A+ content, pricing, inventory, cases, and buy-box defense — operated on
-              your behalf. Your account and data stay yours.
-            </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 40 }}>
+          <div>
+            <Kicker>What we ask of you</Kicker>
+            <H2>A short list</H2>
+            <List items={ASKS} />
           </div>
-          <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 10, padding: "16px 18px" }}>
-            <p style={{ fontSize: 15, fontWeight: 700, margin: "0 0 6px", color: navy }}>FBA reimbursement recovery</p>
-            <p style={{ fontSize: 14, color: muted, lineHeight: 1.6, margin: 0 }}>
-              Amazon owes sellers money constantly — units lost or damaged in FBA, overcharged dimensions and
-              fees, returns never restocked. We audit the account, file the claims, and recover it. Paid as a
-              share of what comes back.
-            </p>
+          <div>
+            <Kicker>What you keep</Kicker>
+            <H2>Control stays with you</H2>
+            <List items={KEEP} />
           </div>
         </div>
       </Section>
 
       <Section>
-        <Kicker>Track record</Kicker>
-        <h2 style={{ fontSize: "clamp(22px, 3.5vw, 32px)", fontWeight: 800, margin: "0 0 16px" }}>
-          $1.3M+ driven, built and run
-        </h2>
-        <p style={{ fontSize: 16, color: muted, lineHeight: 1.8, margin: "0 0 14px" }}>
-          We scaled Brightworks to $1.3M in revenue in 2025 and built their Shopify storefront from scratch.
-          Current engagements span consumer products, tools, and sporting goods.
+        <Kicker>Excess or aged stock</Kicker>
+        <H2>Need to move inventory this quarter?</H2>
+        <p style={{ fontSize: 16, color: muted, lineHeight: 1.8, margin: "0 0 14px", maxWidth: 680 }}>
+          Drop ship brings in sales steadily. When you have stock that has to move faster, we can propose a
+          time-limited Woot event. You approve the price in writing, you ship each order as it sells, and we
+          handle the listing and the buyer.
         </p>
-        <p style={{ fontSize: 16, color: muted, lineHeight: 1.8, margin: 0 }}>
-          For the full build — manufacturing, operations, regulatory, traditional retail — we work alongside{" "}
-          <a href="https://www.lyventurestudio.com/" target="_blank" rel="noreferrer" style={{ color: navy, fontWeight: 700 }}>LY Venture Studio</a>.
-          Concept to shelf to marketplace, one team.
+        <p style={{ fontSize: 16, color: muted, lineHeight: 1.8, margin: 0, maxWidth: 680 }}>
+          Tell us what you have and where it sits when you get in touch.
         </p>
       </Section>
 
       <Section bg={cream}>
         <Kicker>Who it&apos;s for</Kicker>
-        <h2 style={{ fontSize: "clamp(22px, 3.5vw, 32px)", fontWeight: 800, margin: "0 0 24px" }}>
-          A good fit if you&apos;re a brand with&hellip;
-        </h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {FIT.map((f) => (
-            <div key={f} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "#fff", border: `1px solid ${border}`, borderRadius: 10, padding: "14px 16px" }}>
-              <span style={{ color: orange, fontWeight: 800, flexShrink: 0 }}>→</span>
-              <span style={{ fontSize: 14, lineHeight: 1.6 }}>{f}</span>
-            </div>
-          ))}
-        </div>
+        <H2>A good fit if you&hellip;</H2>
+        <List items={FIT} />
+        <p style={{ fontSize: 14, color: muted, lineHeight: 1.7, margin: "20px 0 0", maxWidth: 680 }}>
+          Not a fit yet: no US stock, orders that can&apos;t ship within 2 business days, or products that need
+          certifications you don&apos;t hold.
+        </p>
+      </Section>
+
+      <Section>
+        <Kicker>Track record</Kicker>
+        <H2>Real results, built and run</H2>
+        <p style={{ fontSize: 16, color: muted, lineHeight: 1.8, margin: "0 0 14px", maxWidth: 680 }}>
+          We scaled Brightworks to $1.3M in revenue in 2025 and built their Shopify storefront from scratch.
+          Current work spans tools, automotive, and sporting-goods brands.
+        </p>
+        <p style={{ fontSize: 16, color: muted, lineHeight: 1.8, margin: 0, maxWidth: 680 }}>
+          For the full build, including manufacturing, operations, and regulatory work, we work alongside{" "}
+          <a href="https://www.lyventurestudio.com/" target="_blank" rel="noreferrer" style={{ color: navy, fontWeight: 700 }}>LY Venture Studio</a>.
+        </p>
       </Section>
 
       <section style={{ background: navy, padding: "72px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
         <ChannelMesh opacity={0.4} />
-        <div style={{ maxWidth: 560, margin: "0 auto", position: "relative", zIndex: 1 }}>
-          <h2 style={{ fontSize: "clamp(22px, 3.5vw, 32px)", fontWeight: 800, color: "#fff", margin: "0 0 14px" }}>
-            Worth a 20-minute call?
+        <div style={{ maxWidth: 580, margin: "0 auto", position: "relative", zIndex: 1 }}>
+          <h2 style={{ fontSize: "clamp(22px, 3.5vw, 32px)", fontWeight: 800, color: "#fff", margin: "0 0 14px", lineHeight: 1.25 }}>
+            Want a free read of your marketplace listings?
           </h2>
           <p style={{ fontSize: 16, color: "#94A3B8", lineHeight: 1.6, margin: "0 0 28px" }}>
-            Tell us where you sell today. We&apos;ll come back with which channels are worth opening
-            and what your excess inventory is really costing you.
+            Tell us who you are and where you sell. We&apos;ll send a one-page read of your listings, sellers, and
+            channel gaps, or talk through the Walmart program if that fits better.
           </p>
           <a href="/#contact" style={{ display: "inline-block", background: orange, color: "#fff", padding: "14px 34px", fontSize: 16, fontWeight: 700, borderRadius: 10, textDecoration: "none" }}>
             Get in touch →
@@ -179,11 +240,14 @@ export default function ForBrands() {
       </section>
 
       <footer style={{ background: navy, padding: "28px 24px", borderTop: "1px solid #1E3A4C" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-          <a href="/" style={{ display: "flex", gap: 2 }}>
-            <span style={{ fontSize: 15, fontWeight: 800, color: "#fff" }}>Vertex</span>
-            <span style={{ fontSize: 15, fontWeight: 800, color: orange }}>Channels</span>
-          </a>
+        <div style={{ maxWidth: 940, margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
+          <div>
+            <a href="/" style={{ display: "flex", gap: 2 }}>
+              <span style={{ fontSize: 15, fontWeight: 800, color: "#fff" }}>Vertex</span>
+              <span style={{ fontSize: 15, fontWeight: 800, color: orange }}>Channels</span>
+            </a>
+            <p style={{ fontSize: 12, color: "#64748B", margin: "6px 0 0" }}>Vertex Deal LLC · 105 Mall Way, Marysville, WA 98270</p>
+          </div>
           <a href="mailto:hello@vertexchannels.com" style={{ fontSize: 13, color: "#94A3B8" }}>hello@vertexchannels.com</a>
         </div>
       </footer>
