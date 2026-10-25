@@ -4,6 +4,7 @@ import AdminShell from "../AdminShell";
 import { OutreachSection, OUTCOME_LABEL, type OutreachEmail, type EmailTemplate } from "../OutreachSection";
 import { parseCsv, parseTabText, looksTabSeparated, autoMap, SMARTSCOUT_HINTS } from "@/lib/deals/csv";
 import { readSession } from "@/lib/admin/session";
+import { buildInstantlyCsv } from "@/lib/deals/instantlyExport";
 
 const navy = "#0A2333";
 const orange = "#F97316";
@@ -113,12 +114,15 @@ const BAND_STYLE: Record<string, { bg: string; fg: string; label: string }> = {
   archive: { bg: "#FEE2E2", fg: "#991B1B", label: "Archive" },
 };
 
-const ANGLES = ["channel", "excess", "partner"];
+// Engagement mode — the offer ladder: drop ship is the entry; managed services
+// are the upsell; excess goes through Woot; partners are referral sources.
+const ANGLES = ["dropship", "channel", "excess", "partner"];
 const ANGLE_LABEL: Record<string, string> = {
-  channel: "Channel management", excess: "Excess inventory", partner: "Referral partner",
+  dropship: "Drop ship supplier", channel: "Managed services", excess: "Excess / Woot deal", partner: "Referral partner",
 };
 const ANGLE_TAG: Record<string, { bg: string; fg: string; short: string }> = {
-  channel: { bg: "#EEF2FF", fg: "#3730A3", short: "Channel" },
+  dropship: { bg: "#DCFCE7", fg: "#15803D", short: "Drop ship" },
+  channel: { bg: "#EEF2FF", fg: "#3730A3", short: "Managed" },
   excess: { bg: "#FEF3C7", fg: "#92400E", short: "Excess" },
   partner: { bg: "#E0E7FF", fg: "#3730A3", short: "Partner" },
 };
@@ -883,6 +887,7 @@ export default function DealDeskPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
   const [showImport, setShowImport] = useState(false);
+  const [showExport, setShowExport] = useState(false);
   const [newBrand, setNewBrand] = useState("");
 
   const load = useCallback(async (silent = false) => {
@@ -1031,11 +1036,15 @@ export default function DealDeskPage() {
             <option value="updated">Sort: Recently updated</option>
             <option value="name">Sort: A–Z</option>
           </select>
-          <button onClick={() => { setShowImport((v) => !v); setShowNew(false); }}
+          <button onClick={() => { setShowImport((v) => !v); setShowNew(false); setShowExport(false); }}
             style={{ background: "#fff", color: navy, border: `1px solid ${border}`, borderRadius: 8, padding: "7px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
             Import CSV
           </button>
-          <button onClick={() => { setShowNew((v) => !v); setShowImport(false); }}
+          <button onClick={() => { setShowExport((v) => !v); setShowImport(false); setShowNew(false); }}
+            style={{ background: "#fff", color: navy, border: `1px solid ${border}`, borderRadius: 8, padding: "7px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+            Export to Instantly
+          </button>
+          <button onClick={() => { setShowNew((v) => !v); setShowImport(false); setShowExport(false); }}
             style={{ background: orange, color: "#fff", border: "none", borderRadius: 8, padding: "7px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
             + New prospect
           </button>
@@ -1057,6 +1066,18 @@ export default function DealDeskPage() {
 
         {showImport && (
           <ImportPanel token={token} onImported={reloadSilent} onClose={() => setShowImport(false)} />
+        )}
+
+        {showExport && (
+          <ExportPanel
+            rows={filtered}
+            label={[
+              inShow ? showFilter : showFilter === "none" ? "no show" : "",
+              angleFilter !== "all" ? ANGLE_LABEL[angleFilter] : "",
+              stageFilter !== "all" ? STAGE_LABEL[stageFilter] : "",
+            ].filter(Boolean).join(", ") || "all brands"}
+            onClose={() => setShowExport(false)}
+          />
         )}
 
         <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 12, overflow: "hidden" }}>
@@ -1149,6 +1170,64 @@ export default function DealDeskPage() {
         )}
       </div>
     </AdminShell>
+  );
+}
+
+// ─── Export to Instantly ─────────────────────────────────────────────────────
+
+function ExportPanel({ rows, label, onClose }: { rows: Prospect[]; label: string; onClose: () => void }) {
+  const [withoutEmail, setWithoutEmail] = useState(false);
+  const r = useMemo(() => buildInstantlyCsv(rows, { includeWithoutEmail: withoutEmail }), [rows, withoutEmail]);
+  const s = r.stats;
+
+  function download() {
+    const blob = new Blob([r.csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "all";
+    a.href = url;
+    a.download = `instantly-${slug}-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  const line = (n: number, text: string, warn = false) =>
+    n > 0 ? (
+      <li style={{ color: warn ? "#B45309" : muted }}>{n} {text}</li>
+    ) : null;
+
+  return (
+    <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 12, padding: 18, marginBottom: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+        <p style={{ fontSize: 14, fontWeight: 800, color: navy, margin: 0 }}>Export to Instantly</p>
+        <button onClick={onClose} style={{ background: "none", border: "none", color: muted, fontSize: 18, cursor: "pointer", lineHeight: 1 }}>×</button>
+      </div>
+      <p style={{ fontSize: 12, color: muted, margin: "0 0 10px" }}>
+        Exports what the filters show now ({label}). Brands in a sequence, passed, or marked Referral partner are left out.
+      </p>
+      <ul style={{ margin: "0 0 12px", paddingLeft: 18, fontSize: 12.5, lineHeight: 1.7 }}>
+        <li style={{ color: navy, fontWeight: 700 }}>{s.withEmail} of {s.total} have a valid email</li>
+        {line(s.missingEmail, "have no email yet (find and verify before sending)", s.withEmail === 0)}
+        {line(s.invalidEmail, "have an email that doesn't look valid")}
+        {line(s.duplicateEmail, "duplicate email skipped")}
+        {line(s.roleAddresses, "are role addresses like info@ — find a named contact if you can", true)}
+        {line(s.partner, "referral partners left out")}
+        {line(s.alreadyContacted, "already contacted or later stage, left out")}
+      </ul>
+      <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: muted, marginBottom: 12 }}>
+        <input type="checkbox" checked={withoutEmail} onChange={(e) => setWithoutEmail(e.target.checked)} />
+        Include brands without an email (a worklist for finding contacts, not for upload)
+      </label>
+      <button onClick={download} disabled={r.included === 0}
+        style={{ background: r.included === 0 ? "#9CA3AF" : orange, color: "#fff", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 700, cursor: r.included === 0 ? "not-allowed" : "pointer" }}>
+        Download CSV ({r.included} {r.included === 1 ? "row" : "rows"})
+      </button>
+      <p style={{ fontSize: 11, color: muted, margin: "10px 0 0" }}>
+        In Instantly, upload the file to a campaign and map <code>email</code>, <code>first_name</code>, <code>last_name</code>, <code>company_name</code>.
+        The rest become merge fields: <code>{"{{personalization}}"}</code> (your opening line, or a show hook), <code>{"{{trade_show}}"}</code>, <code>{"{{booth}}"}</code>, <code>{"{{segment}}"}</code>.
+        Use one campaign per segment.
+      </p>
+    </div>
   );
 }
 
