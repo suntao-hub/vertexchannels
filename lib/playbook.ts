@@ -124,7 +124,7 @@ export const PLAYBOOK: Playbook = {
           t: "steps",
           items: [
             "Import the list (CSV or tab-separated text) and type the show name so every brand is tagged and marked to visit.",
-            "Screen each brand: set Walmart, eBay and Newegg presence, check the Amazon listings, note MAP.",
+            "Screen each brand: use the Screen panel (or each brand's Screening assist) to run the Amazon check, open the marketplace search links, set Walmart, eBay and Newegg presence, and note MAP. The assist suggests an offer mode and drafts an opening line. Verify before sending.",
             "Set the offer mode and write or confirm the opening line.",
             "Add a named contact and verify the email. Prefer a person over info@.",
             "Check the segment tabs: each offer mode shows how many brands are ready (valid email plus something to open with).",
@@ -132,7 +132,7 @@ export const PLAYBOOK: Playbook = {
             "When someone replies, set the stage, log the outcome, and record terms learned in Brand HQ.",
           ],
         },
-        { t: "note", text: "On hold until the pilot passes: Airtable, VertexTracker, a supplier portal, Mandarin pages, Wayfair and Shopify. Planned builds: a screening assist (Amazon check and a suggested offer mode), a bulk stage update after export, and supplier, SKU and listing tables once a supplier signs." },
+        { t: "note", text: "On hold until the pilot passes: Airtable, VertexTracker, a supplier portal, Mandarin pages, Wayfair and Shopify. Planned builds: eBay presence through its API (needs a free developer key), a bulk stage update after export, and supplier, SKU and listing tables once a supplier signs." },
       ],
     },
     {
@@ -280,6 +280,7 @@ export const PLAYBOOK: Playbook = {
             { date: "Oct 26", text: "The .co warm-up started. First send stays Nov 10, but as a small batch to the services brands." },
             { date: "Oct 26", text: "SEMA brands segmented: 7 services, 4 drop ship, 1 excess." },
             { date: "Oct 26", text: "Segment tabs with ready counts and a Sequences page (per-segment emails, copy for Instantly, per-segment export) added to the admin." },
+            { date: "Oct 26", text: "Screening assist added: Keepa Amazon check per brand or in batches of 10, a suggested offer mode, a draft opening line, and marketplace search links. Walmart, eBay and Newegg presence stays manual." },
           ],
         },
         { t: "p", text: "Open questions" },

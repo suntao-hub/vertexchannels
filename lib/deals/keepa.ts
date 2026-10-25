@@ -154,6 +154,33 @@ export async function keepaLookup(asin: string): Promise<KeepaSnapshot | null> {
   };
 }
 
+// Brand-level search: the top results Keepa returns for a term (about 10 tokens
+// per call). Callers filter by brand, since a search also returns lookalikes.
+export async function keepaBrandSearch(term: string): Promise<{
+  products: unknown[]; tokensLeft: number | null; refillInMs: number | null;
+}> {
+  const key = process.env.KEEPA_API_KEY;
+  if (!key) throw new Error("Keepa isn't configured.");
+  const url =
+    `https://api.keepa.com/search?key=${key}&domain=${KEEPA_DOMAIN_US}` +
+    `&type=product&term=${encodeURIComponent(term)}&stats=90&page=0`;
+  const res = await fetch(url, { cache: "no-store" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data?.error) {
+    const refill = typeof data?.refillIn === "number" ? Math.ceil(data.refillIn / 1000) : null;
+    throw new Error(
+      res.status === 429 || (typeof data?.tokensLeft === "number" && data.tokensLeft < 0)
+        ? `Keepa is out of tokens${refill ? `. Try again in about ${refill} seconds` : ""}.`
+        : `Keepa search failed (${res.status}).`,
+    );
+  }
+  return {
+    products: Array.isArray(data.products) ? data.products : [],
+    tokensLeft: typeof data.tokensLeft === "number" ? data.tokensLeft : null,
+    refillInMs: typeof data.refillIn === "number" ? data.refillIn : null,
+  };
+}
+
 export function extractAsin(input: string): string | null {
   const s = input.trim();
   if (/^[A-Z0-9]{10}$/i.test(s)) return s.toUpperCase();

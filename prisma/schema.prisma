@@ -71,6 +71,9 @@ model BrandProspect {
   tradeShow        String @default("") // free text, e.g. "SEMA 2026"
   booth            String @default("")
   showStatus       String @default("") // "" | to_visit | met | no_show | skip
+  // Screening assist — Keepa brand search result (JSON text) and when it ran
+  amazonCheckedAt  DateTime?
+  amazonData       String @default("")
   products      ProspectProduct[]
   emails        OutreachEmail[]
   createdAt     DateTime @default(now())

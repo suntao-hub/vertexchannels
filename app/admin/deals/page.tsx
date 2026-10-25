@@ -6,6 +6,7 @@ import { parseCsv, parseTabText, looksTabSeparated, autoMap, SMARTSCOUT_HINTS } 
 import { readSession } from "@/lib/admin/session";
 import { buildInstantlyCsv } from "@/lib/deals/instantlyExport";
 import { forTrack, readyToSend, SEGMENTS } from "@/lib/deals/tracks";
+import { parseAmazon, suggestMode, draftOpening, marketplaceLinks } from "@/lib/deals/screening";
 
 const navy = "#0A2333";
 const orange = "#F97316";
@@ -95,6 +96,8 @@ interface Prospect {
   tradeShow: string;
   booth: string;
   showStatus: string;
+  amazonCheckedAt: string | null;
+  amazonData: string;
   products: Product[];
   emails: OutreachEmail[];
   updatedAt: string;
@@ -763,7 +766,7 @@ function ProspectDetail({ prospect, templates, shows, token, keepaOn, onUpdate, 
         {field("2nd email", "secondEmailAt", "date")}
       </div>
 
-      <label key={`opening-${prospect.id}`} style={{ display: "block", fontSize: 12, marginTop: 4 }}>
+      <label key={`opening-${prospect.id}-${prospect.openingLine}`} style={{ display: "block", fontSize: 12, marginTop: 4 }}>
         <span style={{ color: muted, fontWeight: 600 }}>
           Opening line <span style={{ fontWeight: 400 }}>— the specific hook for the first cold email ({"{{opening}}"})</span>
         </span>
@@ -800,6 +803,8 @@ function ProspectDetail({ prospect, templates, shows, token, keepaOn, onUpdate, 
           {selectField("Visit status", "showStatus", SHOW_STATUS_OPTIONS)}
         </div>
       </div>
+
+      <ScreeningBlock prospect={prospect} token={token} onUpdate={onUpdate} patch={patch} />
 
       {/* Brand HQ */}
       <div style={{ marginTop: 14, padding: 12, background: "#F9FAFB", border: `1px solid ${border}`, borderRadius: 10 }}>
@@ -889,6 +894,12 @@ export default function DealDeskPage() {
   const [showNew, setShowNew] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [showExport, setShowExport] = useState(false);
+  const [showScreen, setShowScreen] = useState(false);
+  // Merge, so partial responses (no emails or products) never wipe fields already loaded.
+  const updateProspect = useCallback(
+    (np: Prospect) => setProspects((ps) => ps.map((x) => (x.id === np.id ? { ...x, ...np } : x))),
+    [],
+  );
   const [newBrand, setNewBrand] = useState("");
 
   const load = useCallback(async (silent = false) => {
@@ -1061,15 +1072,19 @@ export default function DealDeskPage() {
             <option value="updated">Sort: Recently updated</option>
             <option value="name">Sort: A–Z</option>
           </select>
-          <button onClick={() => { setShowImport((v) => !v); setShowNew(false); setShowExport(false); }}
+          <button onClick={() => { setShowImport((v) => !v); setShowNew(false); setShowExport(false); setShowScreen(false); }}
             style={{ background: "#fff", color: navy, border: `1px solid ${border}`, borderRadius: 8, padding: "7px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
             Import CSV
           </button>
-          <button onClick={() => { setShowExport((v) => !v); setShowImport(false); setShowNew(false); }}
+          <button onClick={() => { setShowScreen((v) => !v); setShowImport(false); setShowNew(false); setShowExport(false); }}
+            style={{ background: "#fff", color: navy, border: `1px solid ${border}`, borderRadius: 8, padding: "7px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+            Screen
+          </button>
+          <button onClick={() => { setShowExport((v) => !v); setShowImport(false); setShowNew(false); setShowScreen(false); }}
             style={{ background: "#fff", color: navy, border: `1px solid ${border}`, borderRadius: 8, padding: "7px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
             Export to Instantly
           </button>
-          <button onClick={() => { setShowNew((v) => !v); setShowImport(false); setShowExport(false); }}
+          <button onClick={() => { setShowNew((v) => !v); setShowImport(false); setShowExport(false); setShowScreen(false); }}
             style={{ background: orange, color: "#fff", border: "none", borderRadius: 8, padding: "7px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
             + New prospect
           </button>
@@ -1091,6 +1106,10 @@ export default function DealDeskPage() {
 
         {showImport && (
           <ImportPanel token={token} onImported={reloadSilent} onClose={() => setShowImport(false)} />
+        )}
+
+        {showScreen && (
+          <ScreenPanel rows={filtered} token={token} onUpdate={updateProspect} onClose={() => setShowScreen(false)} />
         )}
 
         {showExport && (
@@ -1178,7 +1197,7 @@ export default function DealDeskPage() {
                 <ProspectDetail
                   key={selected.id}
                   prospect={selected} templates={templates} shows={shows} token={token} keepaOn={keepaOn}
-                  onUpdate={(np) => setProspects((ps) => ps.map((x) => x.id === np.id ? np : x))}
+                  onUpdate={updateProspect}
                   onReload={reloadSilent}
                   onClose={() => setSelectedId(null)}
                   onDelete={async () => {
@@ -1195,6 +1214,218 @@ export default function DealDeskPage() {
         )}
       </div>
     </AdminShell>
+  );
+}
+
+// ─── Screening assist ────────────────────────────────────────────────────────
+
+const SIGNAL_STYLE: Record<string, { bg: string; fg: string; label: string }> = {
+  high: { bg: "#FEE2E2", fg: "#B91C1C", label: "Amazon problems: strong" },
+  medium: { bg: "#FEF3C7", fg: "#92400E", label: "Amazon problems: some" },
+  low: { bg: "#F3F4F6", fg: "#4B5563", label: "No Amazon problems found" },
+  none: { bg: "#F3F4F6", fg: "#4B5563", label: "Not found on Amazon" },
+};
+
+function ScreeningBlock({ prospect, token, onUpdate, patch }: {
+  prospect: Prospect; token: string; onUpdate: (p: Prospect) => void;
+  patch: (partial: Record<string, unknown>) => Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const amazon = useMemo(() => parseAmazon(prospect.amazonData), [prospect.amazonData]);
+  const sug = suggestMode(prospect, amazon);
+  const draftMode = sug.mode ?? (prospect.angle || "channel");
+  const draft = draftOpening(prospect, amazon, draftMode);
+  const currentMode = prospect.angle || "channel";
+
+  async function check() {
+    setBusy(true); setErr("");
+    const r = await fetch("/api/admin/deals/amazon-check", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-token": token },
+      body: JSON.stringify({ prospectId: prospect.id }),
+    });
+    const j = await r.json().catch(() => ({}));
+    setBusy(false);
+    if (!r.ok) { setErr(j.error ?? "Amazon check failed."); return; }
+    onUpdate({ ...prospect, ...j.prospect });
+  }
+
+  const sig = amazon ? SIGNAL_STYLE[amazon.signal] : null;
+  const small: React.CSSProperties = { fontSize: 12, color: muted, margin: 0 };
+  const mini = (primary: boolean): React.CSSProperties => ({
+    background: primary ? orange : "#fff", color: primary ? "#fff" : navy,
+    border: primary ? "none" : `1px solid ${border}`, borderRadius: 6, padding: "5px 12px",
+    fontSize: 12, fontWeight: 700, cursor: "pointer",
+  });
+
+  return (
+    <div style={{ marginTop: 14, padding: 12, background: "#F9FAFB", border: `1px solid ${border}`, borderRadius: 10, display: "grid", gap: 10 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+        <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", color: muted, margin: 0 }}>Screening assist</p>
+        <button onClick={check} disabled={busy} style={mini(!amazon)}>
+          {busy ? "Checking…" : amazon ? "Re-check Amazon" : "Check Amazon"}
+        </button>
+      </div>
+      {err && <p style={{ fontSize: 12, color: "#DC2626", margin: 0 }}>{err}</p>}
+
+      <p style={small}>
+        Search:{" "}
+        {marketplaceLinks(prospect.brandName).map((l, i) => (
+          <span key={l.name}>{i > 0 && " · "}<a href={l.url} target="_blank" rel="noreferrer" style={{ color: orange, fontWeight: 700 }}>{l.name} ↗</a></span>
+        ))}
+        {" "}— then set presence in Brand HQ below.
+      </p>
+
+      {amazon && sig && (
+        <div style={{ display: "grid", gap: 6 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+            <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 9px", borderRadius: 999, background: sig.bg, color: sig.fg }}>{sig.label}</span>
+            <span style={small}>
+              {amazon.matched} of {amazon.scanned} Keepa results matched this brand · checked {new Date(amazon.checkedAt).toLocaleDateString()}
+            </span>
+          </div>
+          <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, lineHeight: 1.6 }}>
+            {amazon.findings.map((f) => <li key={f}>{f}</li>)}
+          </ul>
+          {amazon.products.length > 0 && (
+            <details>
+              <summary style={{ fontSize: 12, color: muted, cursor: "pointer" }}>Top listings matched ({amazon.products.length}). Check these are the right company.</summary>
+              <div style={{ marginTop: 6, display: "grid", gap: 3 }}>
+                {amazon.products.map((p) => (
+                  <a key={p.asin} href={`https://www.amazon.com/dp/${p.asin}`} target="_blank" rel="noreferrer"
+                    style={{ fontSize: 12, color: "#111827", textDecoration: "none" }}>
+                    {p.title.slice(0, 70)} · {p.price ? `$${p.price.toFixed(0)}` : "no price"} · {p.offers} offers{p.rank ? ` · rank ${p.rank.toLocaleString("en-US")}` : ""}{p.buyable ? "" : " · not buyable"} ↗
+                  </a>
+                ))}
+              </div>
+            </details>
+          )}
+        </div>
+      )}
+
+      <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 8, padding: "10px 12px", display: "grid", gap: 6 }}>
+        <p style={{ fontSize: 12, fontWeight: 700, color: navy, margin: 0 }}>
+          Suggested mode: {sug.mode ? <span style={{ color: orange }}>{ANGLE_LABEL[sug.mode]}</span> : <span style={{ color: muted }}>not enough data</span>}
+          {sug.mode && <span style={{ fontWeight: 400, color: muted }}> · {sug.confidence} confidence</span>}
+        </p>
+        <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, lineHeight: 1.6 }}>
+          {sug.reasons.map((r) => <li key={r}>{r}</li>)}
+          {sug.secondary && <li>Secondary: {sug.secondary}</li>}
+        </ul>
+        {sug.missing.length > 0 && <p style={small}>To sharpen it: {sug.missing.join("; ")}.</p>}
+        {sug.mode && (
+          currentMode === sug.mode
+            ? <p style={{ ...small, color: "#15803D", fontWeight: 600 }}>Matches the current mode.</p>
+            : <div><button onClick={() => patch({ angle: sug.mode })} style={mini(true)}>Set to {ANGLE_LABEL[sug.mode]}</button> <span style={small}>currently {ANGLE_LABEL[currentMode] ?? currentMode}</span></div>
+        )}
+      </div>
+
+      {draft && (
+        <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 8, padding: "10px 12px", display: "grid", gap: 6 }}>
+          <p style={{ fontSize: 12, fontWeight: 700, color: navy, margin: 0 }}>Draft opening line</p>
+          <p style={{ fontSize: 13, lineHeight: 1.6, margin: 0 }}>{draft}</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+            {prospect.openingLine.trim() === draft
+              ? <span style={{ ...small, color: "#15803D", fontWeight: 600 }}>Already used as the opening line.</span>
+              : <button onClick={() => patch({ openingLine: draft })} style={mini(false)}>{prospect.openingLine.trim() ? "Replace opening line" : "Use as opening line"}</button>}
+            <span style={small}>Verify each claim before sending.</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ScreenPanel({ rows, token, onUpdate, onClose }: {
+  rows: Prospect[]; token: string; onUpdate: (p: Prospect) => void; onClose: () => void;
+}) {
+  const [running, setRunning] = useState(false);
+  const [log, setLog] = useState<string[]>([]);
+  const [tokensLeft, setTokensLeft] = useState<number | null>(null);
+  const unchecked = rows.filter((p) => !p.amazonCheckedAt);
+  const batch = unchecked.slice(0, 10);
+
+  // Suggestions that would change a brand. Brands set to Excess or Referral
+  // partner are left alone: those are deliberate choices.
+  // Only brands whose Amazon check has run, and only confident suggestions.
+  const changes = rows
+    .filter((p) => (p.angle || "channel") === "channel" || p.angle === "dropship")
+    .map((p) => { const a = parseAmazon(p.amazonData); return { p, a, s: suggestMode(p, a) }; })
+    .filter(({ p, a, s }) => a && s.mode && s.confidence !== "low" && s.mode !== (p.angle || "channel"));
+
+  async function runBatch() {
+    setRunning(true); setLog([]);
+    for (const p of batch) {
+      const r = await fetch("/api/admin/deals/amazon-check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-token": token },
+        body: JSON.stringify({ prospectId: p.id }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { setLog((l) => [...l, `${p.brandName}: ${j.error ?? "failed"}. Stopped.`]); break; }
+      onUpdate({ ...p, ...j.prospect });
+      if (typeof j.tokensLeft === "number") setTokensLeft(j.tokensLeft);
+      setLog((l) => [...l, `${p.brandName}: done`]);
+    }
+    setRunning(false);
+  }
+
+  async function applyAll() {
+    if (!confirm(`Change the offer mode on ${changes.length} brand${changes.length === 1 ? "" : "s"}?`)) return;
+    setRunning(true);
+    for (const { p, s } of changes) {
+      const r = await fetch(`/api/admin/deals/${p.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "x-admin-token": token },
+        body: JSON.stringify({ angle: s.mode }),
+      });
+      if (r.ok) onUpdate({ ...p, ...(await r.json()) });
+    }
+    setRunning(false);
+    setLog([`Updated ${changes.length} brands.`]);
+  }
+
+  const b = (primary: boolean, disabled: boolean): React.CSSProperties => ({
+    background: disabled ? "#9CA3AF" : primary ? orange : "#fff", color: primary || disabled ? "#fff" : navy,
+    border: primary || disabled ? "none" : `1px solid ${border}`, borderRadius: 8, padding: "8px 16px",
+    fontSize: 13, fontWeight: 700, cursor: disabled ? "not-allowed" : "pointer",
+  });
+
+  return (
+    <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 12, padding: 18, marginBottom: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+        <p style={{ fontSize: 14, fontWeight: 800, color: navy, margin: 0 }}>Screen brands in this view</p>
+        <button onClick={onClose} style={{ background: "none", border: "none", color: muted, fontSize: 18, cursor: "pointer", lineHeight: 1 }}>×</button>
+      </div>
+      <p style={{ fontSize: 12, color: muted, margin: "0 0 10px" }}>
+        {rows.length} brands in view · {rows.length - unchecked.length} checked on Amazon · {unchecked.length} not yet.
+        Each check uses about 10 Keepa tokens (the plan refills 5 a minute), so it runs 10 at a time.
+        {tokensLeft != null && ` Tokens left: ${tokensLeft}.`}
+      </p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 10 }}>
+        <button onClick={runBatch} disabled={running || batch.length === 0} style={b(true, running || batch.length === 0)}>
+          {running ? "Working…" : `Check Amazon for ${batch.length} brand${batch.length === 1 ? "" : "s"}`}
+        </button>
+        <button onClick={applyAll} disabled={running || changes.length === 0} style={b(false, running || changes.length === 0)}>
+          Apply suggested modes ({changes.length})
+        </button>
+      </div>
+      {changes.length > 0 && (
+        <ul style={{ margin: "0 0 10px", paddingLeft: 18, fontSize: 12.5, lineHeight: 1.7 }}>
+          {changes.slice(0, 12).map(({ p, s }) => (
+            <li key={p.id}>{p.brandName}: {ANGLE_LABEL[p.angle || "channel"]} → <b>{ANGLE_LABEL[s.mode!]}</b></li>
+          ))}
+          {changes.length > 12 && <li>and {changes.length - 12} more</li>}
+        </ul>
+      )}
+      {log.length > 0 && (
+        <div style={{ fontSize: 12, color: muted, lineHeight: 1.6 }}>{log.map((l, i) => <div key={i}>{l}</div>)}</div>
+      )}
+      <p style={{ fontSize: 11, color: muted, margin: "10px 0 0" }}>
+        Walmart, eBay and Newegg presence is still yours to set (search links are in each brand&apos;s Screening assist). Modes only change for brands that have been checked on Amazon and have a confident suggestion. Brands set to Excess or Referral partner are never changed here.
+      </p>
+    </div>
   );
 }
 
