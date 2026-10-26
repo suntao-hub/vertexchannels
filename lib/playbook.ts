@@ -62,7 +62,7 @@ export const PLAYBOOK: Playbook = {
           t: "table",
           head: ["Offer", "Sold to", "What the brand gets", "You earn", "Risk sits on", "Role"],
           rows: [
-            ["Managed services", "Brands with Amazon or seller-control problems", "Free one-page audit, then account management, catalog cleanup, seller control", "Retainer or revenue share", "The brand's accounts", "Primary. The profit pool"],
+            ["Managed services", "Brands with Amazon or seller-control problems", "Free one-page audit, then account management, catalog cleanup, seller monitoring (flag and report, no promised removals)", "Retainer or revenue share", "The brand's accounts", "Primary. The profit pool"],
             ["Drop ship supplier", "Brands with empty channels and US stock", "More channels at no cost; they ship each order", "Spread per order, $8 and 10% minimum", "Your seller accounts", "Capped. Proof and learning"],
             ["Excess / Woot deal", "Brands holding stock that must move", "A time-limited Woot event, supplier ships", "Spread on the deal", "You and one buyer relationship", "Opportunistic cash lever"],
             ["Referral partner", "Reps, distributors, network contacts", "Introductions to brands", "A fee per signed brand", "Little", "Source. Never cold emailed"],
@@ -285,6 +285,8 @@ export const PLAYBOOK: Playbook = {
             { date: "Oct 26", text: "Screening assist added: Keepa Amazon check per brand or in batches of 10, a suggested offer mode, a draft opening line, and marketplace search links. Walmart, eBay and Newegg presence stays manual." },
             { date: "Oct 26", text: "Drop ship sequence written: Walmart only, Woot mentioned in email 2, three steps on the same 0, 4, 6 day rhythm. The brand page was rewritten to match the two offers (free read, Walmart drop ship)." },
             { date: "Oct 26", text: "Tasks page added to the admin: the dated action plan, with the 10 blockers that must be done before the Nov 10 send." },
+            { date: "Oct 26", text: "/apply now accepts everyone. Ad spend is kept and used only to sort leads: a Priority or Standard tag in the email and a sortable column in Leads." },
+            { date: "Oct 26", text: "No promise to remove unauthorized sellers in emails or on the site. We flag and report them; removals are the marketplace's call." },
           ],
         },
         { t: "p", text: "Open questions" },

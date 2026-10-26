@@ -20,7 +20,7 @@ const PATHS = [
     body: "Start with a free one-page read of your listings, sellers, and channel gaps. If it shows money on the table, we can run it for you.",
     points: [
       "Catalog and listing cleanup, advertising, pricing, and buy-box defense",
-      "Seller control: unauthorized sellers, MAP violations, wrong brand or category on a listing",
+      "Seller monitoring: we flag and report unauthorized sellers, MAP violations, and wrong brand or category on a listing",
       "FBA reimbursement recovery, paid as a share of what comes back",
       "Your account, your data, your customers. You approve the channels and the pricing floor.",
     ],

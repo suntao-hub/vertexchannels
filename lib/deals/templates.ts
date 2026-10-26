@@ -55,7 +55,7 @@ Following up on my note about {{brand}} beyond Amazon. In case it's easier to se
 
 The short version:
 - Walmart, eBay, and Newegg run end to end as your authorized reseller. You approve the channels and the pricing floor.
-- MAP monitoring and unauthorized-seller cleanup across marketplaces
+- We flag unauthorized sellers and MAP violations and report them to the marketplaces. Removals are each marketplace's call, so I won't promise outcomes.
 - Excess or aged stock cleared on the right channels: we list it, you ship each order as it sells, no wholesale write-down
 
 If it's worth exploring, the simplest next step is a 20-minute call, where I'll bring a specific read on which channels fit {{brand}}. Or, if you'd rather start from the account side, tell me what you'd need to see to set us up as an authorized reseller.
@@ -93,7 +93,7 @@ Thanks either way,
 
 Understood, and thanks for the quick reply. Can you help me understand the reasoning — is it a distribution policy, or more about controlling how {{brand}} is represented on marketplaces?
 
-I ask because most brands we work with came to us with unauthorized sellers already on their listings. A managed reseller relationship is usually how they get that back under control, alongside MAP enforcement. If that's a live issue for {{brand}}, it may be worth a short call.
+I ask because unauthorized sellers on the listings are a common reason brands stay selective. We can't promise to remove them, since that's up to each marketplace, but we can flag and report them and keep pricing at your MAP on the channels we run. If that's a live issue for {{brand}}, it may be worth a short call.
 
 {{yourName}}
 {{company}}`,
