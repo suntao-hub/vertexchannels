@@ -113,6 +113,10 @@ export const SEED_TASKS: SeedTask[] = [
     title: "Screen the 4 drop-ship brands and load opening lines",
     detail: "Levrack, Millner-Haufen, Nomad, Industrial Gold. Verify each ships from US stock and check price points." },
 
+  { key: "find-contacts-dropship", area: "dropship", due: "2026-11-13",
+    title: "Find a named contact and email for the drop-ship and excess brands",
+    detail: "Levrack, Millner-Haufen, Nomad, Industrial Gold, and the excess brand (GEDORE, where Troy is the warm contact). Prefer ecommerce, operations or the owner. Enter name and email in the Deal Desk so the drop-ship list can be exported." },
+
   // ── Legal and site ──
   { key: "attorney", area: "legal", due: "2026-11-13",
     title: "Choose an attorney for the supplier agreement",
