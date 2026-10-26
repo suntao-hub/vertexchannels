@@ -44,7 +44,7 @@ export default function ApplyPage() {
   const [step, setStep]         = useState<Step>(1);
   const [form, setForm]         = useState<FormData>(BLANK);
   const [submitting, setSubmitting] = useState(false);
-  const [result, setResult]     = useState<"success" | "rejected" | null>(null);
+  const [result, setResult]     = useState<"success" | null>(null);
   const [error, setError]       = useState("");
 
   function toggleChannel(v: string) {
@@ -68,9 +68,8 @@ export default function ApplyPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      const data = await res.json() as { ok?: boolean; rejected?: boolean };
-      if (data.rejected) setResult("rejected");
-      else if (data.ok)  setResult("success");
+      const data = await res.json() as { ok?: boolean };
+      if (data.ok) setResult("success");
       else setError("Something went wrong. Please try again.");
     } catch {
       setError("Something went wrong. Please try again.");
@@ -87,28 +86,10 @@ export default function ApplyPage() {
             <div style={{ fontSize: 40, marginBottom: 16 }}>🎉</div>
             <h1 style={{ fontSize: 24, fontWeight: 800, color: navy, margin: "0 0 12px" }}>Application received!</h1>
             <p style={{ color: "#6B7280", lineHeight: 1.6, margin: "0 0 8px" }}>
-              Thanks {form.name.split(" ")[0]}! We&apos;ll review your application and reach out
-              within 48 hours to set up a discovery call.
+              Thanks {form.name.split(" ")[0]}! We&apos;ll review your application and reply
+              within 2 business days with next steps, usually a free one-page read of your marketplace listings.
             </p>
             <p style={{ fontSize: 13, color: "#9CA3AF" }}>Keep an eye on {form.email}</p>
-          </div>
-        </Card>
-      </Page>
-    );
-  }
-
-  if (result === "rejected") {
-    return (
-      <Page>
-        <Card>
-          <div style={{ textAlign: "center", padding: "8px 0" }}>
-            <div style={{ fontSize: 40, marginBottom: 16 }}>👋</div>
-            <h1 style={{ fontSize: 24, fontWeight: 800, color: navy, margin: "0 0 12px" }}>Not quite the right fit yet</h1>
-            <p style={{ color: "#6B7280", lineHeight: 1.6, margin: "0 0 8px" }}>
-              We focus on brands spending $3,000+ per month on advertising — that&apos;s where we move the needle most.
-              Once your ad spend reaches that level, we&apos;d love to work together.
-            </p>
-            <p style={{ fontSize: 13, color: "#9CA3AF" }}>Feel free to reapply when you hit that milestone.</p>
           </div>
         </Card>
       </Page>
@@ -127,7 +108,7 @@ export default function ApplyPage() {
           Apply to work with us
         </h1>
         <p style={{ color: "#6B7280", margin: 0 }}>
-          Tell us about your brand and we&apos;ll be in touch within 48 hours.
+          Tell us about your brand and we&apos;ll reply within 2 business days.
         </p>
       </div>
 

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { db } from "@/lib/db/client";
 
-const MIN_AD_SPEND = 3000;
+const PRIORITY_AD_SPEND = 3000;
 const TO_EMAIL = process.env.CONTACT_TO_EMAIL ?? "suntao@vertexchannels.com";
 
 const CHANNEL_LABEL: Record<string, string> = {
@@ -32,11 +32,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    // Everyone is accepted. Ad spend only sorts the inbox.
     const adSpend = parseFloat(body.monthlyAdSpend) || 0;
-
-    if (adSpend < MIN_AD_SPEND) {
-      return NextResponse.json({ rejected: true });
-    }
+    const tier = adSpend >= PRIORITY_AD_SPEND ? "Priority" : "Standard";
 
     const channelList = pickMany(body.channels);
 
@@ -60,7 +58,7 @@ export async function POST(req: NextRequest) {
       from: "Vertex Channels <noreply@vertexchannels.com>",
       to: TO_EMAIL,
       replyTo: body.email,
-      subject: `New application from ${body.name} — ${body.company}`,
+      subject: `[${tier}] New application from ${body.name} — ${body.company}`,
       text: [
         `Name: ${body.name}`,
         `Email: ${body.email}`,

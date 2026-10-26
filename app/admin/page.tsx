@@ -14,8 +14,11 @@ type Lead = {
   id: string; name: string; email: string; company: string;
   service: string; message: string; status: string; notes: string; createdAt: string;
   revenueBand?: string; channels?: string; hasExcess?: string; mapPolicy?: string;
+  monthlyAdSpend?: number | null; source?: string;
   emails?: OutreachEmail[];
 };
+
+const money = (n?: number | null) => (n == null ? "—" : `$${n.toLocaleString("en-US")}/mo`);
 
 const REVENUE_LABEL: Record<string, string> = {
   under_500k: "Under $500K", "500k_1_5m": "$500K–$1.5M", "1_5m_5m": "$1.5M–$5M",
@@ -121,6 +124,7 @@ function Dashboard({ sessionToken }: { sessionToken: string }) {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter]   = useState("all");
+  const [sort, setSort]       = useState<"newest" | "spend">("newest");
   const [selected, setSelected] = useState<Lead | null>(null);
   const [notes, setNotes]     = useState("");
   const [saving, setSaving]   = useState(false);
@@ -165,7 +169,12 @@ function Dashboard({ sessionToken }: { sessionToken: string }) {
     if (selected?.id === id) setSelected(null);
   }
 
-  const filtered = filter === "all" ? leads : leads.filter(l => l.status === filter);
+  const byStatus = filter === "all" ? leads : leads.filter(l => l.status === filter);
+  // Highest ad spend first; leads without a figure (contact form) go last, newest first within ties.
+  const filtered = sort === "spend"
+    ? [...byStatus].sort((a, b) => (b.monthlyAdSpend ?? -1) - (a.monthlyAdSpend ?? -1)
+        || b.createdAt.localeCompare(a.createdAt))
+    : byStatus;
   const stats = STATUS_OPTIONS.reduce((a, s) => { a[s] = leads.filter(l => l.status === s).length; return a; }, {} as Record<string, number>);
 
   if (loading) return (
@@ -221,6 +230,16 @@ function Dashboard({ sessionToken }: { sessionToken: string }) {
                   {s === "all" ? `All (${leads.length})` : `${s.replace("-", " ")} (${stats[s] ?? 0})`}
                 </button>
               ))}
+              <span style={{ fontSize: 13, fontWeight: 600, margin: "0 4px 0 auto" }}>Sort:</span>
+              {([["newest", "Newest"], ["spend", "Ad spend"]] as const).map(([k, label]) => (
+                <button key={k} onClick={() => setSort(k)}
+                  style={{ background: sort === k ? navy : "#F3F4F6",
+                    color: sort === k ? "#fff" : muted,
+                    border: "none", padding: "5px 12px", fontSize: 12, fontWeight: 600,
+                    borderRadius: 20, cursor: "pointer" }}>
+                  {label}
+                </button>
+              ))}
             </div>
 
             {filtered.length === 0 ? (
@@ -232,7 +251,7 @@ function Dashboard({ sessionToken }: { sessionToken: string }) {
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                   <thead>
                     <tr style={{ background: "#F9FAFB", borderBottom: `1px solid ${border}` }}>
-                      {["Name", "Company", "Service", "Status", "Date", ""].map(h => (
+                      {["Name", "Company", "Service", "Ad spend", "Status", "Date", ""].map(h => (
                         <th key={h} style={{ padding: "10px 14px", textAlign: "left",
                           fontWeight: 600, color: muted, fontSize: 12, whiteSpace: "nowrap" }}>{h}</th>
                       ))}
@@ -252,6 +271,11 @@ function Dashboard({ sessionToken }: { sessionToken: string }) {
                         <td style={{ padding: "10px 14px", color: muted, maxWidth: 160,
                           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {lead.service || "—"}
+                        </td>
+                        <td style={{ padding: "10px 14px", whiteSpace: "nowrap",
+                          color: (lead.monthlyAdSpend ?? 0) >= 3000 ? navy : muted,
+                          fontWeight: (lead.monthlyAdSpend ?? 0) >= 3000 ? 700 : 400 }}>
+                          {money(lead.monthlyAdSpend)}
                         </td>
                         <td style={{ padding: "10px 14px" }}><Badge status={lead.status} /></td>
                         <td style={{ padding: "10px 14px", color: muted, whiteSpace: "nowrap" }}>
@@ -287,6 +311,7 @@ function Dashboard({ sessionToken }: { sessionToken: string }) {
               {[
                 { label: "Company", value: selected.company || "—" },
                 { label: "Service interest", value: selected.service || "—" },
+                { label: "Monthly ad spend", value: money(selected.monthlyAdSpend) },
                 { label: "Annual revenue", value: REVENUE_LABEL[selected.revenueBand ?? ""] ?? "—" },
                 { label: "Sells on", value: (selected.channels ?? "").split(",").filter(Boolean).map(c => CHANNEL_LABEL[c] ?? c).join(", ") || "—" },
                 { label: "Excess inventory", value: YES_NO_LABEL[selected.hasExcess ?? ""] ?? "—" },
