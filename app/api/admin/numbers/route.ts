@@ -12,12 +12,15 @@ export async function GET(req: NextRequest) {
   if (!checkAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const weekAgo = new Date(Date.now() - 7 * 86400000);
-  const [clients, weeks, stages, leadStatuses, newLeads] = await Promise.all([
+  const [clients, weeks, stages, leadStatuses, newLeads, angles, emailStatuses, outcomes] = await Promise.all([
     db.clientAccount.findMany({ orderBy: { createdAt: "asc" } }),
     db.weeklyLog.findMany({ orderBy: { weekStart: "desc" }, take: 26 }),
     db.brandProspect.groupBy({ by: ["stage"], _count: { _all: true } }),
     db.contactLead.groupBy({ by: ["status"], _count: { _all: true } }),
     db.contactLead.count({ where: { createdAt: { gte: weekAgo } } }),
+    db.brandProspect.groupBy({ by: ["angle"], _count: { _all: true } }),
+    db.outreachEmail.groupBy({ by: ["status"], _count: { _all: true } }),
+    db.outreachEmail.groupBy({ by: ["outcome"], where: { outcome: { not: "" } }, _count: { _all: true } }),
   ]);
 
   return NextResponse.json({
@@ -27,6 +30,9 @@ export async function GET(req: NextRequest) {
       prospects: Object.fromEntries(stages.map((s) => [s.stage, s._count._all])),
       leads: Object.fromEntries(leadStatuses.map((s) => [s.status, s._count._all])),
       newLeads7d: newLeads,
+      segments: Object.fromEntries(angles.map((a) => [a.angle, a._count._all])),
+      emails: Object.fromEntries(emailStatuses.map((e) => [e.status, e._count._all])),
+      outcomes: Object.fromEntries(outcomes.map((o) => [o.outcome, o._count._all])),
     },
   });
 }
