@@ -161,11 +161,15 @@ export default function TasksPage() {
             <input type="date" key={`${t.id}-${d}`} defaultValue={d}
               onBlur={(e) => { if (e.target.value !== d) patch(t.id, { dueDate: e.target.value || null }); }}
               style={{ fontSize: 12, border: `1px solid ${border}`, borderRadius: 6, padding: "3px 6px", fontFamily: "inherit", color: navy }} />
-            {n != null && !isDone && (
-              <div style={{ fontSize: 11, marginTop: 2, color: n < 0 ? red : n === 0 ? orange : muted, fontWeight: n <= 0 ? 700 : 400 }}>
-                {n < 0 ? `${-n}d overdue` : n === 0 ? "Due today" : `in ${n}d`}
-              </div>
-            )}
+            {n != null && !isDone && (() => {
+              // A skipped daily block doesn't carry over: it is simply due today.
+              const k = t.repeat === "weekdays" && n < 0 ? 0 : n;
+              return (
+                <div style={{ fontSize: 11, marginTop: 2, color: k < 0 ? red : k === 0 ? orange : muted, fontWeight: k <= 0 ? 700 : 400 }}>
+                  {k < 0 ? `${-k}d overdue` : k === 0 ? "Due today" : `in ${k}d`}
+                </div>
+              );
+            })()}
           </div>
           <button onClick={() => remove(t)} aria-label="Delete task" style={{ background: "none", border: "none", color: muted, fontSize: 18, cursor: "pointer", lineHeight: 1 }}>×</button>
         </div>
