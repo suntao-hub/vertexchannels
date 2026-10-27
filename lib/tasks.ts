@@ -22,11 +22,60 @@ export interface SeedTask {
   area: keyof typeof AREAS;
   due: string; // YYYY-MM-DD
   blocker?: boolean;
+  repeat?: Repeat;
 }
 
 export const FIRST_SEND = "2026-11-10";
 
+// A repeating task stays "todo" when ticked and rolls to its next date.
+export type Repeat = "weekdays" | "mon" | "fri" | "monthly";
+
+export const REPEAT_LABEL: Record<string, string> = {
+  weekdays: "every weekday", mon: "every Monday", fri: "every Friday", monthly: "monthly",
+};
+
+const utc = (ymd: string) => new Date(`${ymd}T12:00:00Z`);
+const fmt = (d: Date) => d.toISOString().slice(0, 10);
+
+/** The first date strictly after `from` (YYYY-MM-DD) on which a repeating task is due. */
+export function nextDue(repeat: string, from: string): string {
+  const d = utc(from);
+  if (repeat === "monthly") {
+    return fmt(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1, 12)));
+  }
+  const want: Record<string, number[]> = { weekdays: [1, 2, 3, 4, 5], mon: [1], fri: [5] };
+  const days = want[repeat] ?? [1, 2, 3, 4, 5];
+  do d.setUTCDate(d.getUTCDate() + 1); while (!days.includes(d.getUTCDay()));
+  return fmt(d);
+}
+
 export const SEED_TASKS: SeedTask[] = [
+  // ── Daily and weekly routine (repeats) ──
+  { key: "routine-sales", area: "outreach", due: "2026-10-26", repeat: "weekdays",
+    title: "Block 1 · Sales (90 min)",
+    detail: "First thing, before delivery. Same-day replies, find contacts and verify emails, review the day's sends. No building and no client work until this is done." },
+  { key: "routine-delivery", area: "services", due: "2026-10-26", repeat: "weekdays",
+    title: "Block 2 · Client delivery (3 hrs)",
+    detail: "Work in VertexLaunch. Batch by client (for example Active Tools Monday and Thursday) rather than touching every client daily." },
+  { key: "routine-build", area: "admin", due: "2026-10-26", repeat: "weekdays",
+    title: "Block 3 · Build or admin (60 min)",
+    detail: "Capped at about 5 hours a week. If the cap is used up, skip this block." },
+  { key: "routine-close", area: "admin", due: "2026-10-26", repeat: "weekdays",
+    title: "Block 4 · Close the day (15 min)",
+    detail: "Tick off Tasks, then pick tomorrow's top 3." },
+  { key: "weekly-plan", area: "admin", due: "2026-11-02", repeat: "mon",
+    title: "Monday plan (20 min)",
+    detail: "Open Numbers. Check the pipeline and last week's funnel, then set this week's top 3 sales targets." },
+  { key: "weekly-log", area: "admin", due: "2026-10-30", repeat: "fri",
+    title: "Log the week in Numbers (5 min)",
+    detail: "Enter sends, replies, positive replies, free reads delivered, calls and new clients for the week." },
+  { key: "weekly-review", area: "admin", due: "2026-12-04", repeat: "fri",
+    title: "Friday review (30 min)",
+    detail: "Sends, bounces, replies and positive replies. Reads that became conversations. Hours used against the caps. One template or opening line to improve next week." },
+  { key: "monthly-clients", area: "admin", due: "2026-11-02", repeat: "monthly",
+    title: "Update clients and fees in Numbers",
+    detail: "Check each client's monthly fee and status so MRR is right, then look at the next milestone and what it needs." },
+
   // ── Before the first send ──
   { key: "screen-services", area: "services", due: "2026-10-30", blocker: true,
     title: "Screen the 7 services brands",

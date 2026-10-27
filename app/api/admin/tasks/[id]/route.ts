@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db/client";
 import { checkAuth } from "@/lib/admin/auth";
-import { AREAS } from "@/lib/tasks";
+import { AREAS, nextDue } from "@/lib/tasks";
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!checkAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -17,8 +17,23 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     data.dueDate = b.dueDate ? new Date(`${String(b.dueDate).slice(0, 10)}T12:00:00.000Z`) : null;
   }
   if (b.status === "done" || b.status === "todo") {
-    data.status = b.status;
-    data.doneAt = b.status === "done" ? new Date() : null;
+    const current = await db.task.findUnique({ where: { id }, select: { repeat: true, dueDate: true, doneAt: true } });
+    const justDone = !!current?.doneAt && Date.now() - current.doneAt.getTime() < 6 * 3600 * 1000;
+    if (b.status === "done" && current?.repeat && justDone && current.dueDate && current.dueDate.getTime() > Date.now()) {
+      // Ticked twice in a row: it has already rolled forward, so leave it alone.
+      return NextResponse.json(await db.task.findUnique({ where: { id } }));
+    }
+    if (b.status === "done" && current?.repeat) {
+      // Repeating task: stay "todo", record when it was done, and roll to the next date.
+      // The client sends its own local date so "today" matches the user's clock.
+      const today = /^\d{4}-\d{2}-\d{2}$/.test(String(b.today)) ? String(b.today) : new Date().toISOString().slice(0, 10);
+      const due = current.dueDate ? current.dueDate.toISOString().slice(0, 10) : today;
+      data.doneAt = new Date();
+      data.dueDate = new Date(`${nextDue(current.repeat, due > today ? due : today)}T12:00:00.000Z`);
+    } else {
+      data.status = b.status;
+      data.doneAt = b.status === "done" ? new Date() : null;
+    }
   }
 
   const task = await db.task.update({ where: { id }, data });

@@ -204,7 +204,37 @@ model Task {
   dueDate   DateTime?
   status    String    @default("todo") // todo | done
   blocker   Boolean   @default(false) // must be done before the first send (Nov 10)
+  repeat    String    @default("") // "" | weekdays | mon | fri | monthly. A repeating task rolls to its next date when done.
   doneAt    DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+}
+
+// Paying clients across both businesses. MRR on /admin/numbers is the sum of active fees.
+model ClientAccount {
+  id         String    @id @default(cuid())
+  name       String
+  business   String    @default("channels") // channels | launch
+  monthlyFee Int       @default(0) // dollars per month
+  status     String    @default("active") // active | paused | ended
+  startedAt  DateTime?
+  notes      String    @default("")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+// One row per week (Monday date) of outreach funnel numbers, entered by hand on /admin/numbers.
+model WeeklyLog {
+  id         String   @id @default(cuid())
+  weekStart  String   @unique // YYYY-MM-DD, a Monday
+  sends      Int      @default(0)
+  replies    Int      @default(0)
+  positives  Int      @default(0)
+  reads      Int      @default(0) // free reads delivered
+  calls      Int      @default(0)
+  newClients Int      @default(0)
+  spend      Int      @default(0) // dollars spent that week on tools, data and any ads
+  notes      String   @default("")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

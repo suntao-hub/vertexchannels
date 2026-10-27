@@ -13,7 +13,7 @@ async function seedMissing(onlyIfEmpty: boolean) {
   await db.task.createMany({
     data: missing.map((t) => ({
       key: t.key, title: t.title, detail: t.detail, area: t.area,
-      dueDate: toDate(t.due), blocker: !!t.blocker,
+      dueDate: toDate(t.due), blocker: !!t.blocker, repeat: t.repeat ?? "",
     })),
   });
   return missing.length;

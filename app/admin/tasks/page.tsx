@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import AdminShell from "../AdminShell";
 import { readSession } from "@/lib/admin/session";
-import { AREAS, FIRST_SEND } from "@/lib/tasks";
+import { AREAS, FIRST_SEND, REPEAT_LABEL } from "@/lib/tasks";
 
 const navy = "#0A2333";
 const orange = "#F97316";
@@ -13,14 +13,12 @@ const red = "#B91C1C";
 
 interface Task {
   id: string; key: string | null; title: string; detail: string; area: string;
-  dueDate: string | null; status: string; blocker: boolean; doneAt: string | null;
+  dueDate: string | null; status: string; blocker: boolean; doneAt: string | null; repeat: string;
 }
 
 const ymd = (iso: string | null) => (iso ? iso.slice(0, 10) : "");
-const todayYmd = () => {
-  const d = new Date();
-  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-};
+const localYmd = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+const todayYmd = () => localYmd(new Date());
 const daysBetween = (a: string, b: string) =>
   Math.round((Date.UTC(+a.slice(0, 4), +a.slice(5, 7) - 1, +a.slice(8, 10)) - Date.UTC(+b.slice(0, 4), +b.slice(5, 7) - 1, +b.slice(8, 10))) / 86400000);
 const pretty = (s: string) =>
@@ -85,11 +83,18 @@ export default function TasksPage() {
   }
 
   const today = todayYmd();
-  const open = tasks.filter((t) => t.status !== "done");
+  // Repeating tasks never count toward the plan totals; they have their own routine panel.
+  const plan = tasks.filter((t) => !t.repeat);
+  const open = plan.filter((t) => t.status !== "done");
   const blockersLeft = open.filter((t) => t.blocker).length;
-  const blockersTotal = tasks.filter((t) => t.blocker).length;
+  const blockersTotal = plan.filter((t) => t.blocker).length;
   const daysToSend = daysBetween(FIRST_SEND, today);
-  const pct = tasks.length ? Math.round(((tasks.length - open.length) / tasks.length) * 100) : 0;
+  const pct = plan.length ? Math.round(((plan.length - open.length) / plan.length) * 100) : 0;
+
+  // A repeating task ticked today has already rolled to its next date, so it shows as done until then.
+  const doneToday = (t: Task) => !!t.repeat && !!t.doneAt && localYmd(new Date(t.doneAt)) === today && ymd(t.dueDate) > today;
+  const routine = tasks.filter((t) => t.repeat && (ymd(t.dueDate) <= today || doneToday(t)));
+  const routineDone = routine.filter(doneToday).length;
 
   const visible = useMemo(
     () => tasks.filter((t) => (area === "all" || t.area === area) && (!blockersOnly || t.blocker)),
@@ -104,7 +109,8 @@ export default function TasksPage() {
       { title: "Later", items: [] },
       { title: "No date", items: [] },
     ];
-    for (const t of visible.filter((x) => x.status !== "done")) {
+    // Repeating tasks that are due now live in the Today panel, not in the date groups.
+    for (const t of visible.filter((x) => x.status !== "done" && !(x.repeat && (ymd(x.dueDate) <= today || doneToday(x))))) {
       const d = ymd(t.dueDate);
       if (!d) g[4].items.push(t);
       else {
@@ -113,6 +119,7 @@ export default function TasksPage() {
       }
     }
     return g.filter((x) => x.items.length > 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, today]);
 
   const done = visible.filter((t) => t.status === "done");
@@ -130,11 +137,11 @@ export default function TasksPage() {
   const row = (t: Task) => {
     const d = ymd(t.dueDate);
     const n = d ? daysBetween(d, today) : null;
-    const isDone = t.status === "done";
+    const isDone = t.status === "done" || doneToday(t);
     const a = AREAS[t.area] ?? AREAS.admin;
     return (
       <div key={t.id} style={{ display: "grid", gridTemplateColumns: "26px 1fr auto", gap: 12, padding: "11px 14px", borderTop: `1px solid ${border}`, alignItems: "start", opacity: isDone ? 0.6 : 1 }}>
-        <button onClick={() => patch(t.id, { status: isDone ? "todo" : "done" })} aria-label={isDone ? "Mark not done" : "Mark done"}
+        <button onClick={() => { if (!doneToday(t)) patch(t.id, { status: isDone ? "todo" : "done", today }); }} aria-label={isDone ? "Mark not done" : "Mark done"}
           style={{ width: 20, height: 20, marginTop: 2, borderRadius: 5, border: `2px solid ${isDone ? green : muted}`, background: isDone ? green : "#fff", color: "#fff", fontSize: 12, lineHeight: 1, cursor: "pointer", padding: 0 }}>
           {isDone ? "✓" : ""}
         </button>
@@ -144,6 +151,7 @@ export default function TasksPage() {
               onBlur={(e) => { const v = e.target.value.trim(); if (v && v !== t.title) patch(t.id, { title: v }); }}
               style={{ fontSize: 14, fontWeight: 700, color: navy, border: "none", outline: "none", background: "transparent", fontFamily: "inherit", textDecoration: isDone ? "line-through" : "none", flex: "1 1 260px", minWidth: 0, padding: 0 }} />
             <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 8px", borderRadius: 999, background: a.bg, color: a.fg }}>{a.label}</span>
+            {t.repeat && <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 8px", borderRadius: 999, background: "#F3F4F6", color: muted }}>↻ {REPEAT_LABEL[t.repeat] ?? t.repeat}</span>}
             {t.blocker && !isDone && <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 8px", borderRadius: 999, background: "#FEE2E2", color: red }}>Blocks Nov 10</span>}
           </div>
           {t.detail && <p style={{ fontSize: 12.5, color: muted, lineHeight: 1.55, margin: "4px 0 0", maxWidth: 720 }}>{t.detail}</p>}
@@ -182,8 +190,17 @@ export default function TasksPage() {
           <div style={{ height: 8, background: "#E5E7EB", borderRadius: 6, overflow: "hidden" }}>
             <div style={{ width: `${pct}%`, height: "100%", background: orange }} />
           </div>
-          <p style={{ fontSize: 12, color: muted, margin: 0 }}>{tasks.length - open.length} of {tasks.length} tasks done. The plan comes from the Playbook timeline.</p>
+          <p style={{ fontSize: 12, color: muted, margin: 0 }}>{plan.length - open.length} of {plan.length} plan tasks done. The plan comes from the Playbook timeline.</p>
         </div>}
+
+        {!loading && routine.length > 0 && (
+          <div style={{ background: "#fff", border: `1px solid ${border}`, borderRadius: 10, overflow: "hidden" }}>
+            <p style={{ margin: 0, padding: "10px 14px", fontSize: 13, fontWeight: 800, color: routineDone === routine.length ? green : navy }}>
+              Today · {routineDone} of {routine.length} done{routineDone === routine.length ? ". Routine complete." : ""}
+            </p>
+            {routine.map(row)}
+          </div>
+        )}
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
           {[["all", "All"], ...Object.entries(AREAS).map(([k, v]) => [k, v.label])].map(([k, label]) => (

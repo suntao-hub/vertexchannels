@@ -174,6 +174,18 @@ export const PLAYBOOK: Playbook = {
             { title: "About 3 hours: outreach and admin", text: "Contacts, verification, sends, replies, Deal Desk logging." },
           ],
         },
+        { t: "p", text: "Daily routine (weekdays, ticked off on the Tasks page)" },
+        {
+          t: "steps",
+          items: [
+            "Block 1, sales, 90 minutes, first: same-day replies, contacts and verified emails, review the day's sends. No building and no client work until it is done.",
+            "Block 2, client delivery, 3 hours, in VertexLaunch. Batch by client rather than touching every client daily.",
+            "Block 3, build or admin, 60 minutes, capped at about 5 hours a week.",
+            "Block 4, close the day, 15 minutes: tick off Tasks and pick tomorrow's top 3.",
+            "Monday: 20-minute plan from the Numbers page. Friday: log the week in Numbers, then the 30-minute review. First of the month: update clients and fees.",
+          ],
+        },
+        { t: "note", text: "Revenue milestones, tracked as monthly recurring revenue on the Numbers page: $10k, $30k, $50k, then $83,334 a month, which is a $1M run rate. Advertising budget is small, so growth comes from cold email, referrals and current clients. The weekly log records spend so cost per client is visible." },
         { t: "p", text: "Friday review, 30 minutes" },
         {
           t: "checks",
@@ -287,6 +299,7 @@ export const PLAYBOOK: Playbook = {
             { date: "Oct 26", text: "Tasks page added to the admin: the dated action plan, with the 10 blockers that must be done before the Nov 10 send." },
             { date: "Oct 26", text: "/apply now accepts everyone. Ad spend is kept and used only to sort leads: a Priority or Standard tag in the email and a sortable column in Leads." },
             { date: "Oct 26", text: "No promise to remove unauthorized sellers in emails or on the site. We flag and report them; removals are the marketplace's call." },
+            { date: "Oct 26", text: "Goal: a $1M run rate across Vertex Channels and VertexLaunch. Milestones $10k, $30k, $50k and $83,334 a month. Numbers page added (clients and MRR, weekly funnel, pipeline), and a daily and weekly routine added to Tasks. Ad budget is limited, so no paid-ads plan." },
           ],
         },
         { t: "p", text: "Open questions" },
