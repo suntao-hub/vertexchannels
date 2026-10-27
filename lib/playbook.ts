@@ -300,6 +300,7 @@ export const PLAYBOOK: Playbook = {
             { date: "Oct 26", text: "/apply now accepts everyone. Ad spend is kept and used only to sort leads: a Priority or Standard tag in the email and a sortable column in Leads." },
             { date: "Oct 26", text: "No promise to remove unauthorized sellers in emails or on the site. We flag and report them; removals are the marketplace's call." },
             { date: "Oct 26", text: "Goal: a $1M run rate across Vertex Channels and VertexLaunch. Milestones $10k, $30k, $50k and $83,334 a month. Numbers page added (clients and MRR, weekly funnel, pipeline), and a daily and weekly routine added to Tasks. Ad budget is limited, so no paid-ads plan." },
+            { date: "Oct 27", text: "Focus rule for 90 days: Vertex Channels managed services is the only engine. VertexLaunch is delivery tooling, not sold as SaaS. Drop ship stays capped. Other projects are maintenance only. Aim at brands with about $2M+ revenue and $4-5k+ a month fees. First hire near $30k a month." },
           ],
         },
         { t: "p", text: "Open questions" },
