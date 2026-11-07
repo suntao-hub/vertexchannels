@@ -102,7 +102,8 @@ export function buildInstantlyCsv(prospects: ExportProspect[], opts: ExportOptio
       if (ROLE.test(email)) stats.roleAddresses++;
     }
 
-    const [first, last] = splitName(p.contactName);
+    const [first0, last] = splitName(p.contactName);
+    const first = first0 || "there"; // no named contact: "Hi there," beats "Hi ,"
     const row = [
       email, first, last, p.brandName, p.website, p.contactPhone,
       personalization(p), p.tradeShow, p.booth, SEGMENT[p.angle] ?? "managed_services",

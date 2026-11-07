@@ -7,10 +7,17 @@ interface ImportRow {
   website?: string;
   category?: string;
   contactEmail?: string;
+  contactName?: string;
+  contactPhone?: string;
+  openingLine?: string;
+  angle?: string;
+  tradeShow?: string;
   fitRank?: number | null;
   booth?: string;
   notes?: string;
 }
+
+const ANGLES = new Set(["channel", "dropship", "excess", "partner"]);
 
 // pull the first integer out of things like "1", "1 of 35", "#1"
 function parseRank(v: unknown): number | null {
@@ -46,16 +53,24 @@ export async function POST(req: NextRequest) {
     if (seen.has(key)) { skipped++; continue; }
     seen.add(key);
 
+    // A row's own show wins over the batch-wide one.
+    const rowShow = (r.tradeShow ?? "").trim().slice(0, 80) || show;
+    const angle = (r.angle ?? "").trim().toLowerCase();
+
     await db.brandProspect.create({
       data: {
         brandName: name,
         website: (r.website ?? "").trim(),
         category: (r.category ?? "").trim(),
         contactEmail: (r.contactEmail ?? "").trim(),
+        contactName: (r.contactName ?? "").trim().slice(0, 120),
+        contactPhone: (r.contactPhone ?? "").trim().slice(0, 80),
+        openingLine: (r.openingLine ?? "").trim().slice(0, 600),
+        ...(ANGLES.has(angle) ? { angle } : {}),
         fitRank: parseRank(r.fitRank),
         notes: (r.notes ?? "").trim(),
         source: source === "smartscout" ? "smartscout" : "import",
-        ...(show ? { tradeShow: show, booth: (r.booth ?? "").trim().slice(0, 60), showStatus: "to_visit" } : {}),
+        ...(rowShow ? { tradeShow: rowShow, booth: (r.booth ?? "").trim().slice(0, 60), showStatus: "to_visit" } : {}),
       },
     });
     created++;

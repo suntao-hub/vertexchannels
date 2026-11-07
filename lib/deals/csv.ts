@@ -94,6 +94,17 @@ export const SMARTSCOUT_HINTS: Record<string, string[]> = {
   booth: ["booth number", "booth #", "booth no", "booth"],
 };
 
+// Hints for the richer import (named contacts, opening lines, segments). A
+// superset of the SmartScout hints, so plain brand lists still map the same way.
+export const IMPORT_HINTS: Record<string, string[]> = {
+  ...SMARTSCOUT_HINTS,
+  contactName: ["contact name", "contact person"],
+  contactPhone: ["contact phone", "phone"],
+  openingLine: ["opening line", "personalization", "personalisation"],
+  angle: ["segment", "offer mode"],
+  tradeShow: ["trade show", "show"],
+};
+
 export function autoMap(headers: string[], hints: Record<string, string[]>): Record<string, string> {
   const lower = headers.map((h) => h.toLowerCase());
   const out: Record<string, string> = {};

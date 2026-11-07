@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import AdminShell from "../AdminShell";
 import { OutreachSection, OUTCOME_LABEL, type OutreachEmail, type EmailTemplate } from "../OutreachSection";
-import { parseCsv, parseTabText, looksTabSeparated, autoMap, SMARTSCOUT_HINTS } from "@/lib/deals/csv";
+import { parseCsv, parseTabText, looksTabSeparated, autoMap, IMPORT_HINTS } from "@/lib/deals/csv";
 import { readSession } from "@/lib/admin/session";
 import { buildInstantlyCsv } from "@/lib/deals/instantlyExport";
 import { forTrack, readyToSend, SEGMENTS } from "@/lib/deals/tracks";
@@ -1494,6 +1494,11 @@ const CORE_FIELDS: { key: string; label: string; required?: boolean }[] = [
   { key: "website", label: "Website" },
   { key: "category", label: "Category" },
   { key: "contactEmail", label: "Contact email" },
+  { key: "contactName", label: "Contact name" },
+  { key: "contactPhone", label: "Contact phone" },
+  { key: "openingLine", label: "Opening line" },
+  { key: "angle", label: "Segment (channel, dropship, excess)" },
+  { key: "tradeShow", label: "Trade show (per row)" },
   { key: "fitRank", label: "Fit rank" },
   { key: "booth", label: "Booth" },
 ];
@@ -1525,7 +1530,7 @@ function ImportPanel({ token, onImported, onClose }: {
         if (!h.length) { setErr("Couldn't read any columns from that file."); return; }
         setInfo(tabbed ? `Read as tab-separated text (${r.length} rows, duplicates removed) — converted automatically.` : "");
         setHeaders(h); setRows(r);
-        const auto = autoMap(h, SMARTSCOUT_HINTS);
+        const auto = autoMap(h, IMPORT_HINTS);
         setMap(auto);
         setNoteCols(h.filter((c) => !Object.values(auto).includes(c)));
       } catch { setErr("Failed to parse the CSV."); }
@@ -1535,7 +1540,7 @@ function ImportPanel({ token, onImported, onClose }: {
 
   function applyPreset() {
     setPreset(true);
-    const auto = autoMap(headers, SMARTSCOUT_HINTS);
+    const auto = autoMap(headers, IMPORT_HINTS);
     setMap(auto);
     setNoteCols(headers.filter((c) => !Object.values(auto).includes(c)));
   }
@@ -1550,6 +1555,11 @@ function ImportPanel({ token, onImported, onClose }: {
       website: map.website ? r[map.website] : "",
       category: map.category ? r[map.category] : "",
       contactEmail: map.contactEmail ? r[map.contactEmail] : "",
+      contactName: map.contactName ? r[map.contactName] : "",
+      contactPhone: map.contactPhone ? r[map.contactPhone] : "",
+      openingLine: map.openingLine ? r[map.openingLine] : "",
+      angle: map.angle ? r[map.angle] : "",
+      tradeShow: map.tradeShow ? r[map.tradeShow] : "",
       fitRank: map.fitRank ? r[map.fitRank] : "",
       booth: map.booth ? r[map.booth] : "",
       notes: notes ? `${preset ? "SmartScout import" : "CSV import"} — ${notes}` : "",
