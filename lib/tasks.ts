@@ -128,6 +128,9 @@ export const SEED_TASKS: SeedTask[] = [
     detail: "From Instantly, send step 1 to your Gmail and Microsoft 365 inboxes. Both must land in the inbox (Promotions is fine). Then set the daily limit to 5, weekdays only, tracking off, and launch for Tuesday morning." },
 
   // ── Send and ramp ──
+  { key: "batch-2", area: "outreach", due: "2026-11-12", blocker: false,
+    title: "Add batch 2 to the Instantly campaign (check with Claude first)",
+    detail: "Leads to add: Evil Energy, AUXITO, Lokithor, plus any new brands that now have a verified email. First fix each opening line against Amazon today (Evil Energy was 6 sellers, Lokithor about 500 a month, AUXITO rank about 105). Verify the emails. Export from the Deal Desk, add them to the same campaign, and keep the daily limit at 5. Don't add leads on Wednesday." },
   { key: "day1-wrapup", area: "outreach", due: "2026-11-10",
     title: "End of day 1: check bounces, replies and spam",
     detail: "In Instantly, check delivered against bounced (bounces must stay under 2%). Open any reply from a brand and ignore warm-up threads that have random codes in the subject. Answer within 4 business hours from the .co mailbox, then set the brand to Replied in the Deal Desk. If someone says yes, build the read from the template and deliver it within 2 business days." },
