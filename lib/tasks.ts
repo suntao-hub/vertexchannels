@@ -120,7 +120,17 @@ export const SEED_TASKS: SeedTask[] = [
     title: "Export the services list and upload it to the Instantly campaign",
     detail: "Sequences page, Export. Only brands with a valid email are included." },
 
+  { key: "export-first-batch", area: "outreach", due: "2026-11-09", blocker: true,
+    title: "Export the first batch and upload it to Instantly",
+    detail: "Deal Desk: open the Managed services tab and type \"tier a\" in the search box. Click Export, then Download CSV (it should list the 5 tier A brands that have an email). In Instantly: open the campaign, Add leads, Upload CSV, and map email, first_name and company_name. Upload only these first 5. Add the next brands as the first batch goes well." },
+  { key: "instantly-test", area: "deliverability", due: "2026-11-09", blocker: true,
+    title: "Send a test from Instantly, then launch",
+    detail: "From Instantly, send step 1 to your Gmail and Microsoft 365 inboxes. Both must land in the inbox (Promotions is fine). Then set the daily limit to 5, weekdays only, tracking off, and launch for Tuesday morning." },
+
   // ── Send and ramp ──
+  { key: "day1-wrapup", area: "outreach", due: "2026-11-10",
+    title: "End of day 1: check bounces, replies and spam",
+    detail: "In Instantly, check delivered against bounced (bounces must stay under 2%). Open any reply from a brand and ignore warm-up threads that have random codes in the subject. Answer within 4 business hours from the .co mailbox, then set the brand to Replied in the Deal Desk. If someone says yes, build the read from the template and deliver it within 2 business days." },
   { key: "send-1", area: "outreach", due: "2026-11-10",
     title: "First send: 5 to 10 a day to the services brands",
     detail: "Tuesday to Thursday mornings. Skip Nov 11 (Veterans Day). Watch bounces and replies." },
