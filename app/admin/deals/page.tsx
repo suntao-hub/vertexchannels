@@ -890,6 +890,7 @@ export default function DealDeskPage() {
   const [showFilter, setShowFilter] = useState("all");
   const [showStatusFilter, setShowStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("fit");
+  const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
   const [showImport, setShowImport] = useState(false);
@@ -965,6 +966,14 @@ export default function DealDeskPage() {
     .filter((p) => mapFilter === "all" || (p.mapPolicy || "unknown") === mapFilter)
     .filter((p) => showFilter === "all" || (showFilter === "none" ? !p.tradeShow : p.tradeShow === showFilter))
     .filter((p) => showStatusFilter === "all" || (p.showStatus || "") === showStatusFilter)
+    .filter((p) => {
+      // The typed phrase must appear in the brand's text (e.g. "tier a", "ancel", "role address").
+      const q = search.trim().toLowerCase().replace(/\s+/g, " ");
+      if (!q) return true;
+      const hay = [p.brandName, p.contactName, p.contactEmail, p.category, p.website, p.tradeShow, p.notes]
+        .join(" ").toLowerCase().replace(/\s+/g, " ");
+      return hay.includes(q);
+    })
     .slice().sort(SORTS[sortBy] ?? SORTS.fit);
   const shows = Array.from(new Set(prospects.map((p) => p.tradeShow).filter(Boolean))).sort();
   const inShow = showFilter !== "all" && showFilter !== "none";
@@ -1062,6 +1071,8 @@ export default function DealDeskPage() {
               ))}
             </select>
           )}
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search brand, contact, notes (try: tier a)"
+            style={{ fontSize: 12, border: `1px solid ${border}`, borderRadius: 8, padding: "6px 10px", minWidth: 230, color: navy, background: "#fff", fontFamily: "inherit" }} />
           <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
             style={{ fontSize: 12, border: `1px solid ${border}`, borderRadius: 8, padding: "6px 8px", color: muted, background: "#fff" }}>
             {inShow && <option value="booth">Sort: Booth (walking order)</option>}
